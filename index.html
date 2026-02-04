@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>中国万亿GDP城市 - 固定视角版</title>
+    <title>中国万亿GDP城市 - 最终完美交互版</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     
@@ -12,7 +12,7 @@
             margin: 0;
             overflow: hidden;
             background-color: #2E7D32; 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             -webkit-user-select: none;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
@@ -22,6 +22,7 @@
             height: 100vh;
             position: relative;
             background-color: #333; 
+            touch-action: none; /* 禁止原生缩放 */
         }
         canvas {
             display: block;
@@ -29,23 +30,21 @@
             height: 100%;
         }
 
-        /* --- UI 层 --- */
+        /* UI层：关键是 pointer-events: none 防止遮挡点击 */
         #ui-layer {
             position: absolute;
             top: 5vh;
             width: 100%;
             text-align: center;
             color: #fff;
-            pointer-events: none;
+            pointer-events: none; 
             z-index: 100;
         }
         #year-display {
             font-family: 'Press Start 2P', cursive;
             font-size: 28px;
             margin-bottom: 6px;
-            color: #fff;
             text-shadow: 2px 2px 0 #000;
-            letter-spacing: 2px;
         }
         #info-bar {
             display: inline-flex;
@@ -56,15 +55,8 @@
             padding: 4px 12px;
             border-radius: 50px;
             border: 1px solid rgba(255,255,255,0.4);
-            backdrop-filter: blur(4px);
         }
-        .label-text {
-            font-weight: 700;
-            font-size: 16px;
-            color: #fff;
-            letter-spacing: 0.5px;
-            text-shadow: 0 1px 1px rgba(0,0,0,0.5);
-        }
+        .label-text { font-weight: 700; font-size: 16px; }
         #count-display {
             font-family: 'Press Start 2P', cursive;
             font-size: 12px;
@@ -72,20 +64,9 @@
             background: #FFEB3B;
             padding: 4px 8px;
             border-radius: 4px;
-            box-shadow: 1px 1px 0 #F57F17;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 24px;
-        }
-        .unit-text {
-            font-weight: 700;
-            font-size: 12px;
-            margin-left: 3px;
-            color: #333;
         }
 
-        /* --- 底部控制栏 --- */
+        /* 底部控制栏：需要 pointer-events: auto 才能点击 */
         #controls-bar {
             position: absolute;
             bottom: 4vh;
@@ -94,42 +75,35 @@
             justify-content: center;
             gap: 15px;
             z-index: 200;
-            pointer-events: auto; 
+            pointer-events: none; /* 容器穿透 */
         }
-
         .pixel-btn {
+            pointer-events: auto; /* 按钮可点 */
             font-weight: 700;
             font-size: 16px;
             color: #fff;
             background: #333;
             border: 2px solid #fff;
-            padding: 8px 24px;
+            padding: 10px 24px;
             cursor: pointer;
             box-shadow: 2px 2px 0 #000;
-            text-shadow: 0 1px 0 rgba(0,0,0,0.5);
-            transition: transform 0.1s, box-shadow 0.1s, background-color 0.3s;
-            min-width: 80px;
             border-radius: 8px;
         }
-
-        .pixel-btn:active {
-            transform: translate(1px, 1px);
-            box-shadow: 1px 1px 0 #000;
-        }
-
-        .btn-replay-mode { background-color: #D32F2F !important; }
-        .btn-resume-mode { background-color: #388E3C !important; }
+        .pixel-btn:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 #000; }
+        .btn-replay-mode { background-color: #D32F2F !important; } /* 红色重播 */
+        .btn-resume-mode { background-color: #388E3C !important; } /* 绿色继续 */
         #btn-share { background: #1976D2; }
 
+        /* 提示框 */
         #toast {
             position: absolute;
-            bottom: 12vh;
+            bottom: 15vh;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.85);
             color: #FFEB3B;
-            padding: 8px 16px;
-            border-radius: 6px;
+            padding: 10px 20px;
+            border-radius: 50px;
             border: 1px solid #fff;
             font-weight: 700;
             font-size: 14px;
@@ -140,6 +114,65 @@
             white-space: nowrap;
         }
         #toast.show { opacity: 1; }
+
+        /* 数据弹窗 */
+        #modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 500;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px);
+        }
+        #modal-content {
+            width: 85%;
+            max-width: 400px;
+            max-height: 70vh;
+            background: #222;
+            border: 2px solid #fff;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            color: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        #modal-header {
+            background: #FFEB3B;
+            color: #333;
+            padding: 15px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 900;
+            border-bottom: 2px solid #fff;
+            position: relative;
+        }
+        #modal-close {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+        }
+        #modal-body {
+            padding: 15px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .data-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+        .data-year { width: 45px; color: #aaa; font-family: monospace; }
+        .data-val { width: 60px; text-align: right; margin-right: 10px; font-weight: bold; }
+        .data-bar-bg { flex: 1; height: 8px; background: #444; border-radius: 4px; overflow: hidden; }
+        .data-bar-fill { height: 100%; background: #4CAF50; width: 0; transition: width 0.5s; }
 
     </style>
 </head>
@@ -160,13 +193,56 @@
     <button id="btn-share" class="pixel-btn">分享</button>
 </div>
 
-<div id="toast">已复制链接!</div>
+<div id="modal-overlay">
+    <div id="modal-content">
+        <div id="modal-header">
+            <span id="modal-title">城市</span>
+            <div id="modal-close">×</div>
+        </div>
+        <div id="modal-body" id="data-list"></div>
+    </div>
+</div>
+
+<div id="toast"></div>
 
 <div id="canvas-container">
     <canvas id="gameCanvas"></canvas>
 </div>
 
 <script>
+    // --- 完整数据源 ---
+    const gdpData = {
+        "上海": {2025:56709,2024:53927,2023:51405,2022:48595,2021:47059,2020:41604,2019:40241,2018:37769,2017:34378,2016:30964,2015:27822,2014:25965,2013:23809,2012:21775,2011:20406,2010:18320,2009:16181,2008:14877,2007:13180,2006:10825},
+        "北京": {2025:52073,2024:49843,2023:47354,2022:45222,2021:44351,2020:38504,2019:37767,2018:35161,2017:31326,2016:28439,2015:26034,2014:23578,2013:21746,2012:19568,2011:17653,2010:15420,2009:13336,2008:12168,2007:10730,2006:8619},
+        "广州": {2025:32039,2024:31033,2023:30356,2022:28839,2021:28232,2020:25019,2019:23629,2018:22859,2017:21503,2016:19547,2015:18100,2014:16707,2013:15420,2012:13551,2011:12423,2010:10748,2009:9138,2008:8216,2007:7109,2006:6074},
+        "深圳": {2025:38732,2024:36802,2023:34606,2022:32388,2021:30665,2020:27670,2019:26927,2018:24222,2017:22490,2016:19493,2015:17503,2014:16002,2013:14500,2012:12950,2011:11506,2010:9582,2009:8201,2008:7807,2007:6802,2006:5814},
+        "重庆": {2025:33758,2024:32193,2023:30614,2022:28772,2021:28093,2020:25158,2019:23690,2018:21867,2017:20261,2016:18271,2015:16306,2014:14912,2013:13276,2012:11798,2011:10314,2010:8187,2009:6744,2008:5979,2007:4838,2006:3949},
+        "苏州": {2025:27695,2024:26727,2023:24653,2022:23958,2021:22718,2020:20170,2019:19236,2018:18597,2017:16997,2016:15445,2015:14469,2014:13717,2013:12930,2012:11966,2011:10670,2010:9181,2009:7851,2008:7163,2007:5914,2006:4948},
+        "天津": {2025:18540,2024:18024,2023:17212,2022:16589,2021:16093,2020:14231,2019:14097,2018:13411,2017:12468,2016:11487,2015:10889,2014:10749,2013:10075,2012:9193,2011:8241,2010:6992,2009:5829,2008:5278,2007:4230,2006:3593},
+        "武汉": {2025:22147,2024:21106,2023:20012,2022:18866,2021:17717,2020:15616,2019:16223,2018:14847,2017:13410,2016:11913,2015:10906,2014:10069,2013:9051,2012:8004,2011:6762,2010:5566,2009:4621,2008:3960,2007:3142,2006:2591},
+        "成都": {2025:24764,2024:23511,2023:22075,2022:20818,2021:19917,2020:17717,2019:17013,2018:15343,2017:13889,2016:12170,2015:10801,2014:10057,2013:9109,2012:8139,2011:6855,2010:5551,2009:4503,2008:3901,2007:3324,2006:2750},
+        "杭州": {2025:23011,2024:21860,2023:20059,2022:18753,2021:18109,2020:16106,2019:15373,2018:13509,2017:12603,2016:11314,2015:10050,2014:9206,2013:8344,2012:7802,2011:7019,2010:5949,2009:5088,2008:4781,2007:4130,2006:3442},
+        "南京": {2025:19429,2024:18501,2023:17421,2022:16908,2021:16356,2020:14818,2019:14031,2018:12820,2017:11715,2016:10503,2015:9721,2014:8821,2013:8012,2012:7202,2011:6146,2010:5131,2009:4230,2008:3775,2007:3284,2006:2774},
+        "青岛": {2025:17561,2024:16719,2023:15760,2022:14921,2021:14136,2020:12401,2019:11741,2018:12002,2017:11037,2016:10011,2015:9300,2014:8692,2013:8007,2012:7302,2011:6616,2010:5666,2009:4854,2008:4436,2007:3787,2006:3207},
+        "无锡": {2025:16774,2024:16263,2023:15456,2022:14851,2021:14003,2020:12370,2019:11852,2018:11439,2017:10511,2016:9340,2015:8681,2014:8359,2013:7920,2012:7446,2011:6800,2010:5779,2009:5027,2008:4530,2007:3932,2006:3350},
+        "长沙": {2025:15738,2024:15269,2023:14332,2022:13966,2021:13271,2020:12143,2019:11574,2018:11003,2017:10536,2016:9357,2015:8510,2014:7825,2013:7153,2012:6400,2011:5619,2010:4547,2009:3745,2008:3001,2007:2190,2006:1799},
+        "宁波": {2025:18716,2024:18148,2023:16453,2022:15704,2021:14595,2020:12409,2019:11985,2018:10745,2017:9842,2016:8686,2015:8004,2014:7610,2013:7129,2012:6582,2011:6059,2010:5163,2009:4329,2008:3964,2007:3435,2006:2874},
+        "郑州": {2025:15245,2024:14532,2023:13618,2022:12935,2021:12691,2020:12004,2019:11590,2018:10143,2017:9130,2016:8114,2015:7312,2014:6777,2013:6202,2012:5550,2011:4980,2010:4041,2009:3308,2008:3004,2007:2487,2006:2013},
+        "佛山": {2025:13200,2024:13362,2023:13276,2022:12698,2021:12157,2020:10816,2019:10751,2018:9936,2017:9382,2016:8756,2015:8108,2014:7510,2013:7064,2012:6643,2011:6231,2010:5665,2009:4843,2008:4419,2007:3696,2006:3021},
+        "福州": {2025:15112,2024:14237,2023:12928,2022:12308,2021:11324,2020:10020,2019:9392,2018:7857,2017:7103,2016:6198,2015:5618,2014:5169,2013:4679,2012:4218,2011:3736,2010:3123,2009:2604,2008:2284,2007:1975,2006:1664},
+        "泉州": {2025:13778,2024:13095,2023:12172,2022:12103,2021:11304,2020:10159,2019:9947,2018:8468,2017:7940,2016:6921,2015:6321,2014:5954,2013:5380,2012:4814,2011:4282,2010:3673,2009:3133,2008:2789,2007:2355,2006:1875},
+        "南通": {2025:12802,2024:12422,2023:11813,2022:11309,2021:10947,2020:10018,2019:9369,2018:8753,2017:8034,2016:7152,2015:6498,2014:5749,2013:5235,2012:4630,2011:4139,2010:3511,2009:2904,2008:2620,2007:2182,2006:1802},
+        "合肥": {2025:14210,2024:13508,2023:12674,2022:12013,2021:11413,2020:10046,2019:9409,2018:7823,2017:7213,2016:6274,2015:5660,2014:5158,2013:4673,2012:4164,2011:3637,2010:2702,2009:2102,2008:1665,2007:1335,2006:1074},
+        "西安": {2025:13903,2024:13318,2023:12011,2022:11487,2021:10688,2020:10020,2019:9321,2018:8350,2017:7470,2016:6257,2015:5801,2014:5493,2013:4884,2012:4366,2011:3864,2010:3242,2009:2724,2008:2190,2007:1764,2006:1474},
+        "济南": {2025:14210,2024:13528,2023:12757,2022:12027,2021:11432,2020:10141,2019:9443,2018:7857,2017:7202,2016:6536,2015:6100,2014:5771,2013:5230,2012:4804,2011:4406,2010:3911,2009:3351,2008:3017,2007:2563,2006:2185},
+        "东莞": {2025:12760,2024:12282,2023:11870,2022:11743,2021:11273,2020:10080,2019:9737,2018:9022,2017:8079,2016:7261,2015:6665,2014:6175,2013:5740,2012:5190,2011:4887,2010:4340,2009:3817,2008:3716,2007:3169,2006:2636},
+        "常州": {2025:11159,2024:10814,2023:10116,2022:9552,2021:9038,2020:7810,2019:7406,2018:6897,2017:6478,2016:5752,2015:5281,2014:4991,2013:4528,2012:4040,2011:3640,2010:3092,2009:2561,2008:2302,2007:1937,2006:1604},
+        "烟台": {2025:11351,2024:10783,2023:10162,2022:9516,2021:8712,2020:7816,2019:7653,2018:7833,2017:6762,2016:6456,2015:6086,2014:5705,2013:5338,2012:5009,2011:4621,2010:4086,2009:3676,2008:3409,2007:2880,2006:2406},
+        "唐山": {2025:10482,2024:10004,2023:9133,2022:8901,2021:8231,2020:7211,2019:6890,2018:6300,2017:5917,2016:5602,2015:5118,2014:5086,2013:4937,2012:4716,2011:5442,2010:4469,2009:3813,2008:3537,2007:2779,2006:2336},
+        "温州": {2025:10214,2024:9719,2023:8731,2022:8030,2021:7585,2020:6871,2019:6606,2018:6006,2017:5412,2016:5125,2015:4670,2014:4351,2013:4068,2012:3707,2011:3437,2010:2944,2009:2540,2008:2422,2007:2156,2006:1834},
+        "大连": {2025:10002,2024:9517,2023:8753,2022:8431,2021:7826,2020:7030,2019:7002,2018:7668,2017:7364,2016:6810,2015:7732,2014:7656,2013:7651,2012:7003,2011:6151,2010:5158,2009:4350,2008:3858,2007:3131,2006:2570}
+    };
+
     const timeline = {
         2006: ["上海"], 2007: ["北京"], 2010: ["广州"], 
         2011: ["深圳", "重庆", "苏州"], 2013: ["天津"], 
@@ -189,6 +265,11 @@
     const btnShare = document.getElementById('btn-share');
     const toast = document.getElementById('toast');
     const container = document.getElementById('canvas-container');
+    
+    const modalOverlay = document.getElementById('modal-overlay');
+    const modalTitle = document.getElementById('modal-title');
+    const modalClose = document.getElementById('modal-close');
+    const modalList = document.getElementById('data-list');
 
     let w, h, dpr;
     let roadScroll = 0;
@@ -200,30 +281,12 @@
     let yearTimer = 0;
     const YEAR_DURATION = 2500; 
     
-    // 6车道
     const LANE_COUNT = 6; 
-    
     let laneWidth, roadLeft, roadW;
     let carWidth, carHeight, fontSize; 
     
-    // 移除 cameraScale 变量
-    
     let isPaused = false;
     let isFinished = false;
-
-    // 圆角矩形辅助
-    CanvasRenderingContext2D.prototype.roundRect = CanvasRenderingContext2D.prototype.roundRect || function (x, y, w, h, r) {
-        if (w < 2 * r) r = w / 2;
-        if (h < 2 * r) r = h / 2;
-        this.beginPath();
-        this.moveTo(x + r, y);
-        this.arcTo(x + w, y, x + w, y + h, r);
-        this.arcTo(x + w, y + h, x, y + h, r);
-        this.arcTo(x, y + h, x, y, r);
-        this.arcTo(x, y, x + w, y, r);
-        this.closePath();
-        return this;
-    }
 
     class Car {
         constructor(name, foundYear, index) {
@@ -231,14 +294,9 @@
             this.foundYear = foundYear;
             this.originalIndex = index;
             this.mainColor = yearColors[foundYear % yearColors.length];
-            
-            this.width = 0;
-            this.height = 0;
-            this.x = 0;
-            this.y = 0; 
-            
-            this.targetX = 0;
-            this.targetY = 0;
+            this.width = 0; this.height = 0;
+            this.x = 0; this.y = 0; 
+            this.targetX = 0; this.targetY = 0;
             this.driftPhase = Math.random() * Math.PI * 2;
             this.hasSpawned = false;
         }
@@ -246,18 +304,14 @@
         update(localRankIndex, isNew, startY) {
             this.width = carWidth;
             this.height = carHeight;
-
             const row = Math.floor(localRankIndex / LANE_COUNT); 
             const col = localRankIndex % LANE_COUNT;
-            
             this.targetX = roadLeft + col * laneWidth + (laneWidth - this.width) / 2;
-
             const rowGap = this.height * 1.7; 
             this.targetY = startY + row * rowGap;
 
             if (!this.hasSpawned) {
                 this.x = this.targetX; 
-                // 直接使用屏幕高度h计算入场位置，不再除以cameraScale
                 this.y = this.targetY + h + 200; 
                 this.hasSpawned = true;
             }
@@ -270,29 +324,20 @@
         draw(ctx) {
             const x = this.x + this.currentDrift;
             const y = this.y;
-            // 1. 阴影 
             ctx.fillStyle = "rgba(0,0,0,0.4)";
             ctx.fillRect(x + this.width*0.15, y + this.width*0.15, this.width, this.height);
-            
-            // 2. 轮胎
             ctx.fillStyle = "#111";
-            const wW = this.width * 0.18; 
-            const wH = this.height * 0.22; 
+            const wW = this.width * 0.18; const wH = this.height * 0.22; 
             ctx.fillRect(x - wW/2, y + wH/2, wW, wH); 
             ctx.fillRect(x + this.width - wW/2, y + wH/2, wW, wH);
             ctx.fillRect(x - wW/2, y + this.height - wH*1.5, wW, wH); 
             ctx.fillRect(x + this.width - wW/2, y + this.height - wH*1.5, wW, wH);
-            
-            // 3. 车身
             ctx.fillStyle = this.mainColor;
             ctx.fillRect(x, y, this.width, this.height);
-            // 4. 玻璃
             ctx.fillStyle = "#283593";
             ctx.fillRect(x + this.width*0.1, y + this.height*0.18, this.width*0.8, this.height*0.2);
-            // 5. 尾翼
             ctx.fillStyle = "rgba(0,0,0,0.25)";
             ctx.fillRect(x + this.width*0.05, y + this.height*0.82, this.width*0.9, this.height*0.12);
-            // 6. 文字
             this.drawBodyText(ctx, x, y);
         }
 
@@ -301,12 +346,9 @@
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
             ctx.fillStyle = "#fff";
-            ctx.shadowColor = "rgba(0,0,0,0.5)";
-            ctx.shadowBlur = 0; ctx.shadowOffsetX = 2; ctx.shadowOffsetY = 2;
-            
+            ctx.shadowColor = "rgba(0,0,0,0.5)"; ctx.shadowBlur = 0; ctx.shadowOffsetX = 2; ctx.shadowOffsetY = 2;
             const textYStart = y + this.height * 0.52;
             const textGap = fontSize * 1.1;
-
             ctx.fillText(this.name[0], x + this.width/2, textYStart);
             if (this.name[1]) ctx.fillText(this.name[1], x + this.width/2, textYStart + textGap);
             ctx.shadowColor = "transparent";
@@ -318,105 +360,79 @@
         const rect = container.getBoundingClientRect();
         w = rect.width;
         h = rect.height;
-
         canvas.width = w * dpr;
         canvas.height = h * dpr;
         ctx.resetTransform();
         ctx.scale(dpr, dpr);
-
+        
         const maxRoadWidth = 800; 
         roadW = Math.min(w * 0.98, maxRoadWidth);
         roadLeft = (w - roadW) / 2;
         laneWidth = roadW / LANE_COUNT;
-
-        // 车身比例维持在0.52，左右间距宽敞
+        
         carWidth = laneWidth * 0.52; 
         carHeight = carWidth * 1.6; 
-        
         fontSize = Math.floor(carWidth * 0.45);
     }
     window.addEventListener('resize', resize);
 
     function drawRoad() {
-        // 固定赛道长度，不再随镜头伸缩
         const drawH = h + 100; 
-
-        ctx.fillStyle = "#555";
-        ctx.fillRect(roadLeft, 0, roadW, drawH);
-
-        if (!isPaused && !isFinished) {
-            roadScroll = (roadScroll + ROAD_SPEED) % 80;
-        }
-
-        ctx.fillStyle = "#EEE"; 
-        const borderW = roadW * 0.02; 
-        ctx.fillRect(roadLeft - borderW, 0, borderW, drawH); 
-        ctx.fillRect(roadLeft + roadW, 0, borderW, drawH);   
-
+        ctx.fillStyle = "#555"; ctx.fillRect(roadLeft, 0, roadW, drawH);
+        if (!isPaused && !isFinished) { roadScroll = (roadScroll + ROAD_SPEED) % 80; }
+        ctx.fillStyle = "#EEE"; const borderW = roadW * 0.02; 
+        ctx.fillRect(roadLeft - borderW, 0, borderW, drawH); ctx.fillRect(roadLeft + roadW, 0, borderW, drawH);   
         ctx.fillStyle = "rgba(255,255,255,0.4)"; 
         for(let i=1; i<LANE_COUNT; i++) {
             let lx = roadLeft + i * laneWidth;
-            for(let y = -80; y < drawH; y += 80) {
-                ctx.fillRect(lx - 2, y + roadScroll, 4, 40);
-            }
+            for(let y = -80; y < drawH; y += 80) { ctx.fillRect(lx - 2, y + roadScroll, 4, 40); }
         }
     }
 
     function drawSeparator(ctx, y) {
         ctx.save();
         ctx.translate(w/2, y);
-        
         const currentColor = yearColors[currentYear % yearColors.length];
-
-        ctx.beginPath();
-        ctx.setLineDash([10, 10]);
-        ctx.moveTo(-roadW * 0.45, 0);
-        ctx.lineTo(roadW * 0.45, 0);
-        ctx.strokeStyle = currentColor; 
-        ctx.lineWidth = 4;
-        ctx.stroke();
-
+        ctx.beginPath(); ctx.setLineDash([10, 10]); ctx.moveTo(-roadW * 0.45, 0); ctx.lineTo(roadW * 0.45, 0);
+        ctx.strokeStyle = currentColor; ctx.lineWidth = 4; ctx.stroke();
         ctx.fillStyle = currentColor; 
-        const labelW = fontSize * 7; 
-        const labelH = fontSize * 1.8;  
-        ctx.roundRect(-labelW/2, -labelH/2, labelW, labelH, labelH/2);
+        // 绘制圆角标签背景
+        const labelW = fontSize * 7; const labelH = fontSize * 1.8; 
+        ctx.beginPath();
+        ctx.moveTo(-labelW/2 + labelH/2, -labelH/2);
+        ctx.lineTo(labelW/2 - labelH/2, -labelH/2);
+        ctx.arc(labelW/2 - labelH/2, 0, labelH/2, -Math.PI/2, Math.PI/2);
+        ctx.lineTo(-labelW/2 + labelH/2, labelH/2);
+        ctx.arc(-labelW/2 + labelH/2, 0, labelH/2, Math.PI/2, -Math.PI/2);
         ctx.fill();
 
         ctx.font = `bold ${fontSize}px sans-serif`; 
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.shadowColor = "rgba(0,0,0,0.3)";
-        ctx.shadowBlur = 0; ctx.shadowOffsetX = 1; ctx.shadowOffsetY = 1;
-        
-        ctx.fillStyle = "#fff"; 
-        ctx.fillText(currentYear + "年新增", 0, 2);
+        ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.shadowColor = "rgba(0,0,0,0.3)"; ctx.shadowBlur = 0; ctx.shadowOffsetX = 1; ctx.shadowOffsetY = 1;
+        ctx.fillStyle = "#fff"; ctx.fillText(currentYear + "年新增", 0, 2);
         ctx.restore();
+    }
+
+    function showToast(msg) {
+        toast.innerText = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2000);
     }
 
     function gameLoop() {
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         ctx.clearRect(0, 0, w, h);
 
-        // --- 核心：不再进行镜头缩放 ---
-        
         const topMargin = h * 0.22; 
         const rowGap = carHeight * 1.7;
         const groupGap = rowGap * 1.2; 
-        // 移除了 bottomPadding 的计算，因为不需要算总高度了
 
         const oldCars = cars.filter(c => c.foundYear < currentYear);
         const newCars = cars.filter(c => c.foundYear === currentYear);
-
         const oldRows = Math.ceil(Math.max(oldCars.length, 0) / LANE_COUNT);
-        const newRows = Math.ceil(Math.max(newCars.length, 0) / LANE_COUNT);
         
         let newCarsStartY = topMargin;
-        if (oldCars.length > 0) {
-            newCarsStartY = topMargin + oldRows * rowGap + groupGap;
-        }
-
-        // 不再平移画布，直接绘制
-        // (注：原本的 translate(centerX...) 是为了配合缩放，现在也不需要了，因为 drawRoad 里的 roadLeft 已经居中了)
+        if (oldCars.length > 0) newCarsStartY = topMargin + oldRows * rowGap + groupGap;
 
         drawRoad();
 
@@ -424,12 +440,12 @@
             yearTimer += 16;
             if (yearTimer > YEAR_DURATION) {
                 if (currentYearIndex < activeYears.length - 1) {
-                    yearTimer = 0;
-                    currentYearIndex++;
+                    yearTimer = 0; currentYearIndex++;
                     currentYear = activeYears[currentYearIndex];
                     updateYearDisplay();
                 } else {
-                     if (yearTimer > YEAR_DURATION + 500) {
+                     // 1秒后判定为结束，允许点击
+                     if (yearTimer > 1000) {
                          isFinished = true;
                          setReplayMode();
                      }
@@ -438,10 +454,7 @@
         }
 
         oldCars.sort((a, b) => a.foundYear - b.foundYear || a.originalIndex - b.originalIndex);
-        oldCars.forEach((car, i) => {
-            car.update(i, false, topMargin);
-            car.draw(ctx);
-        });
+        oldCars.forEach((car, i) => { car.update(i, false, topMargin); car.draw(ctx); });
 
         if (newCars.length > 0 && oldCars.length > 0) {
             let lineY = topMargin + oldRows * rowGap + groupGap / 2 - (groupGap * 0.2);
@@ -449,11 +462,7 @@
         }
 
         newCars.sort((a, b) => a.originalIndex - b.originalIndex);
-        newCars.forEach((car, i) => {
-            let startY = (oldCars.length === 0) ? topMargin : newCarsStartY;
-            car.update(i, true, startY);
-            car.draw(ctx);
-        });
+        newCars.forEach((car, i) => { let startY = (oldCars.length === 0) ? topMargin : newCarsStartY; car.update(i, true, startY); car.draw(ctx); });
 
         requestAnimationFrame(gameLoop);
     }
@@ -462,7 +471,6 @@
         yearText.innerText = currentYear;
         yearText.style.transform = "scale(1.2)";
         setTimeout(()=> yearText.style.transform = "scale(1)", 150);
-
         if (timeline[currentYear]) {
             timeline[currentYear].forEach(name => {
                 cars.push(new Car(name, currentYear, cars.length));
@@ -474,32 +482,86 @@
     function setReplayMode() {
         btnToggle.innerText = "重播";
         btnToggle.classList.remove('btn-resume-mode');
-        btnToggle.classList.add('btn-replay-mode'); 
+        btnToggle.classList.add('btn-replay-mode');
+        showToast("现在可点击车辆查看详情");
     }
 
     function resetGame() {
         cars = [];
         currentYearIndex = 0;
         currentYear = activeYears[0]; 
-        yearTimer = 0; 
-        isPaused = false;
-        isFinished = false;
-        
-        yearText.innerText = currentYear;
-        countNum.innerText = "1"; 
+        yearTimer = 0; isPaused = false; isFinished = false;
+        yearText.innerText = currentYear; countNum.innerText = "1"; 
         btnToggle.innerText = "暂停";
         btnToggle.classList.remove('btn-replay-mode');
         btnToggle.classList.remove('btn-resume-mode');
-        
-        timeline[currentYear].forEach(name => {
-            cars.push(new Car(name, currentYear, cars.length));
-        });
+        timeline[currentYear].forEach(name => { cars.push(new Car(name, currentYear, cars.length)); });
     }
 
+    function openModal(cityName) {
+        isPaused = true;
+        btnToggle.innerText = "继续";
+        btnToggle.classList.add('btn-resume-mode');
+        modalTitle.innerText = cityName + " GDP(亿元)";
+        modalList.innerHTML = "";
+        
+        const data = gdpData[cityName];
+        if(!data) { alert("暂无数据"); return; }
+
+        const maxVal = Math.max(...Object.values(data));
+        const years = Object.keys(data).sort((a,b)=>b-a);
+        
+        years.forEach(y => {
+            const val = data[y];
+            const percent = (val / maxVal) * 100;
+            const row = document.createElement('div');
+            row.className = 'data-row';
+            row.innerHTML = `
+                <div class="data-year">${y}</div>
+                <div class="data-val">${val}</div>
+                <div class="data-bar-bg"><div class="data-bar-fill" style="width: 0%"></div></div>
+            `;
+            modalList.appendChild(row);
+            setTimeout(() => { row.querySelector('.data-bar-fill').style.width = percent + "%"; }, 50);
+        });
+        modalOverlay.style.display = "flex";
+    }
+
+    function closeModal() { modalOverlay.style.display = "none"; }
+
+    // --- 核心点击事件 ---
+    canvas.addEventListener('click', (e) => {
+        if (!isFinished) {
+            showToast("比赛进行中...请等待 2025 年结束");
+            return;
+        }
+        const rect = canvas.getBoundingClientRect();
+        // 关键：不乘以 dpr，因为所有逻辑坐标都是基于 CSS 像素计算的
+        const clickX = e.clientX - rect.left;
+        const clickY = e.clientY - rect.top;
+
+        // 倒序遍历，优先点击最上层的
+        for (let i = cars.length - 1; i >= 0; i--) {
+            const car = cars[i];
+            const carX = car.x + car.currentDrift;
+            const carY = car.y;
+            // 判定范围扩大 50%，更容易点中
+            const padding = car.width * 0.5; 
+            
+            if (clickX >= carX - padding && clickX <= carX + car.width + padding &&
+                clickY >= carY - padding && clickY <= carY + car.height + padding) {
+                openModal(car.name);
+                break;
+            }
+        }
+    });
+
+    modalClose.addEventListener('click', closeModal);
+    modalOverlay.addEventListener('click', (e) => { if(e.target === modalOverlay) closeModal(); });
+
     btnToggle.addEventListener('click', () => {
-        if (isFinished) {
-            resetGame();
-        } else {
+        if (isFinished) { resetGame(); } 
+        else {
             isPaused = !isPaused;
             if (isPaused) {
                 btnToggle.innerText = "继续";
@@ -513,24 +575,14 @@
 
     btnShare.addEventListener('click', () => {
         const url = window.location.href;
-        navigator.clipboard.writeText(url).then(() => {
-            toast.classList.add('show');
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 2000);
-        }).catch(err => {
-            alert("复制失败，请手动复制链接");
-        });
+        navigator.clipboard.writeText(url).then(() => showToast("链接已复制"))
+        .catch(() => alert("复制失败"));
     });
 
     resize();
-    currentYearIndex = 0;
-    currentYear = activeYears[0];
-    timeline[currentYear].forEach(name => {
-        cars.push(new Car(name, currentYear, cars.length));
-    });
+    currentYearIndex = 0; currentYear = activeYears[0];
+    timeline[currentYear].forEach(name => { cars.push(new Car(name, currentYear, cars.length)); });
     countNum.innerText = cars.length;
-    
     requestAnimationFrame(gameLoop);
 
 </script>
