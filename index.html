@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>中国万亿GDP城市 - 原生适配版</title>
+    <title>中国万亿GDP城市 - 最终文案版</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
@@ -12,7 +12,7 @@
         /* --- 1. 基础重置 --- */
         body { 
             margin: 0; overflow: hidden; background: #222; 
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
             touch-action: none; user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
@@ -25,12 +25,12 @@
 
         /* --- 3. UI 层 (固定定位，绝对置顶) --- */
         #ui-layer {
-            position: fixed; /* 关键：固定在屏幕上 */
+            position: fixed; 
             top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; /* 让点击穿透到画布 */
+            pointer-events: none; 
             z-index: 100;
             display: flex; flex-direction: column; justify-content: space-between;
-            padding: 40px 20px 30px 20px; /* 上下留白 */
+            padding: 40px 20px 30px 20px; 
             box-sizing: border-box;
         }
 
@@ -38,22 +38,23 @@
         .top-bar { text-align: center; color: #fff; }
         #year-display { 
             font-family: 'Press Start 2P', cursive;
-            font-size: 32px; margin-bottom: 10px; 
+            font-size: 32px; margin-bottom: 12px; 
             text-shadow: 3px 3px 0 #000; display: block;
         }
         #info-pill { 
             background: rgba(0,0,0,0.6); display: inline-flex; align-items: center; 
             padding: 8px 20px; border-radius: 40px; 
             border: 2px solid rgba(255,255,255,0.6); 
-            font-size: 14px; font-weight: bold;
+            font-size: 15px; font-weight: bold; /* 字体稍微加大一点 */
             box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            white-space: nowrap; /* 防止文字换行 */
         }
-        #count-num { color: #FFEB3B; font-family: 'Press Start 2P'; margin: 0 6px; font-size: 16px; }
+        #count-num { color: #FFEB3B; font-family: 'Press Start 2P'; margin: 0 8px; font-size: 16px; }
 
         /* 底部 */
         .bottom-bar { 
             display: flex; justify-content: center; gap: 20px; 
-            pointer-events: auto; /* 底部区域恢复点击 */
+            pointer-events: auto; 
         }
         .pixel-btn {
             pointer-events: auto; 
@@ -68,7 +69,20 @@
         .btn-replay { background: #D32F2F !important; animation: pulseBtn 1s infinite; }
         @keyframes pulseBtn { 0% {transform: scale(1);} 50% {transform: scale(1.05);} 100% {transform: scale(1);} }
 
-        /* --- 4. 弹窗 --- */
+        /* --- 4. 幽灵点击层 --- */
+        #hitbox-layer {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 50;
+        }
+        .car-hitbox {
+            position: absolute;
+            background: transparent; 
+            cursor: pointer;
+            pointer-events: auto; 
+            z-index: 51;
+        }
+
+        /* --- 5. 弹窗 --- */
         #modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85); z-index: 2000;
@@ -101,7 +115,7 @@
         #chart-container { flex: 1; position: relative; width: 100%; overflow: hidden; }
         #echarts-dom { width: 100%; height: 100%; }
 
-        /* --- 5. Toast --- */
+        /* --- 6. Toast --- */
         #toast {
             position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%);
             background: rgba(0,0,0,0.9); color: #FFEB3B; padding: 15px 30px;
@@ -114,12 +128,13 @@
 <body>
 
 <canvas id="gameCanvas"></canvas>
+<div id="hitbox-layer"></div>
 
 <div id="ui-layer">
     <div class="top-bar">
         <div id="year-display">2006</div>
         <div id="info-pill">
-            <span>万亿城市</span><span id="count-num">1</span><span>个</span>
+            <span>万亿GDP城市</span><span id="count-num">1</span><span>个</span>
         </div>
     </div>
     <div class="bottom-bar">
@@ -194,11 +209,13 @@
     // --- 全局变量 ---
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
+    
     const uiYear = document.getElementById('year-display');
     const uiCount = document.getElementById('count-num');
     const btnToggle = document.getElementById('btn-toggle');
     const btnShare = document.getElementById('btn-share');
     const toast = document.getElementById('toast');
+    const hitboxLayer = document.getElementById('hitbox-layer');
     const modalOverlay = document.getElementById('modal-overlay');
     const modalTitle = document.getElementById('m-title');
     const modalSubtitle = document.getElementById('m-subtitle');
@@ -216,29 +233,25 @@
     let isPaused = false;
     let isFinished = false;
 
-    // 布局变量 (自适应)
+    // 布局参数 (自适应)
     const LANE_COUNT = 6;
     let w, h, dpr;
     let roadW, roadLeft, laneWidth, carWidth, carHeight, fontSize;
     let cameraScale = 1;
 
-    // --- 核心：屏幕适配 ---
+    // --- 1. 核心：自适应分辨率 ---
     function resize() {
         dpr = window.devicePixelRatio || 1;
         w = window.innerWidth;
         h = window.innerHeight;
         
-        // Canvas 使用真实物理像素
         canvas.width = w * dpr;
         canvas.height = h * dpr;
         
-        // 布局参数 (CSS像素)
         roadW = w * 0.96;
         roadLeft = (w - roadW) / 2;
         laneWidth = roadW / LANE_COUNT;
         
-        // 关键：车宽随屏幕宽，车高随车宽 (1.6倍)
-        // 这样无论屏幕多长，车都不会变形
         carWidth = laneWidth * 0.55; 
         carHeight = carWidth * 1.6; 
         fontSize = Math.floor(carWidth * 0.45);
@@ -273,10 +286,26 @@
             this.targetX = 0; this.targetY = 0;
             this.driftPhase = Math.random() * Math.PI * 2;
             this.hasSpawned = false;
+
+            this.hitbox = document.createElement('div');
+            this.hitbox.className = 'car-hitbox';
+            
+            const handleInteract = (e) => {
+                e.stopPropagation();
+                e.preventDefault(); 
+                if(!isFinished) {
+                    showToast("比赛进行中...请等待结束");
+                } else {
+                    openChart(this.name);
+                }
+            };
+
+            this.hitbox.onclick = handleInteract;
+            this.hitbox.ontouchend = handleInteract;
+            hitboxLayer.appendChild(this.hitbox);
         }
 
         update(rankIndex, startY) {
-            // 实时同步尺寸
             this.width = carWidth;
             this.height = carHeight;
 
@@ -288,7 +317,6 @@
 
             if(!this.hasSpawned) {
                 this.x = this.targetX;
-                // 从屏幕下方入场
                 this.y = this.targetY + (h / cameraScale) + 300; 
                 this.hasSpawned = true;
             }
@@ -296,6 +324,14 @@
             this.x += (this.targetX - this.x) * 0.1;
             this.y += (this.targetY - this.y) * 0.08;
             this.currentDrift = Math.sin(Date.now()/250 + this.driftPhase) * 2;
+
+            const centerX = w / 2;
+            const finalX = (this.x + this.currentDrift - centerX) * cameraScale + centerX;
+            const finalY = this.y * cameraScale;
+            
+            this.hitbox.style.width = (this.width * cameraScale) + 'px';
+            this.hitbox.style.height = (this.height * cameraScale) + 'px';
+            this.hitbox.style.transform = `translate(${finalX}px, ${finalY}px)`;
         }
 
         draw(ctx) {
@@ -333,11 +369,9 @@
     }
 
     function gameLoop() {
-        // 重置矩阵并清空
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0); 
         ctx.clearRect(0, 0, w, h);
 
-        // 顶部留白：25% 屏幕高度
         const topMargin = h * 0.25; 
         const rowGap = carHeight * 1.5;
         const groupGap = rowGap * 1.2;
@@ -356,8 +390,6 @@
             separators = [];
         }
 
-        // --- 智能缩放计算 ---
-        // 计算内容总高度
         let totalH = newCarsStartY;
         if (newCars.length > 0) {
             totalH += (newRows - 1) * rowGap + carHeight; 
@@ -366,18 +398,15 @@
         }
         totalH += bottomPadding;
 
-        // 如果内容高度超过屏幕高度，则缩小
         let targetScale = totalH > h ? h / totalH : 1;
         targetScale = Math.max(targetScale, 0.4); 
         cameraScale += (targetScale - cameraScale) * 0.1;
 
-        // 应用缩放 (Canvas)
         const centerX = w / 2;
         ctx.translate(centerX, 0);
         ctx.scale(cameraScale, cameraScale);
         ctx.translate(-centerX, 0);
 
-        // 绘制路面
         const drawH = h / cameraScale;
         ctx.fillStyle = "#555"; ctx.fillRect(roadLeft, 0, roadW, drawH);
         if(!isPaused && !isFinished) roadScroll = (roadScroll + ROAD_SPEED) % 80;
@@ -442,48 +471,9 @@
         requestAnimationFrame(gameLoop);
     }
 
-    // --- 核心点击处理 (数学判定版) ---
-    function handleTap(clientX, clientY) {
-        if (!isFinished) {
-            showToast("比赛进行中...请等待结束");
-            return;
-        }
-        
-        // 1. 获取点击坐标 (CSS像素)
-        const rect = canvas.getBoundingClientRect();
-        const rawX = clientX - rect.left;
-        const rawY = clientY - rect.top;
-
-        // 2. 坐标反算 (逆矩阵：先平移回去，再除以缩放，再平移回来)
-        const centerX = w / 2; 
-        const logicX = (rawX - centerX) / cameraScale + centerX;
-        const logicY = rawY / cameraScale; 
-
-        // 3. 碰撞检测
-        for (let i = cars.length - 1; i >= 0; i--) {
-            const car = cars[i];
-            const padding = car.width * 0.5; 
-            const carX = car.x + car.currentDrift;
-            
-            if (logicX >= carX - padding && logicX <= carX + car.width + padding &&
-                logicY >= car.y - padding && logicY <= car.y + car.height + padding) {
-                openChart(car.name);
-                break;
-            }
-        }
-    }
-
-    // 监听事件
-    canvas.addEventListener('click', (e) => handleTap(e.clientX, e.clientY));
-    canvas.addEventListener('touchstart', (e) => {
-        if(e.cancelable) e.preventDefault();
-        const touch = e.touches[0];
-        handleTap(touch.clientX, touch.clientY);
-    }, {passive: false});
-
     function openChart(name) {
         isPaused = true;
-        modalTitle.innerText = "2006-2025 " + name + " GDP变化";
+        modalTitle.innerText = name + " GDP变化";
         modalSubtitle.innerText = "单位：亿元人民币";
         modalOverlay.style.display = "flex";
         
@@ -526,6 +516,7 @@
 
     btnToggle.onclick = () => {
         if(isFinished) {
+            cars.forEach(c => hitboxLayer.removeChild(c.hitbox));
             cars = [];
             currentYearIndex = 0; currentYear = activeYears[0];
             yearTimer = 0; isFinished = false; isPaused = false;
