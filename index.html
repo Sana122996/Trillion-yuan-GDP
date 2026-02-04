@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>中国万亿GDP城市 - 宽间距像素版</title>
+    <title>中国万亿GDP城市 - 固定视角版</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     
@@ -12,7 +12,6 @@
             margin: 0;
             overflow: hidden;
             background-color: #2E7D32; 
-            /* 系统字体栈 */
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
             -webkit-user-select: none;
             user-select: none;
@@ -206,13 +205,13 @@
     
     let laneWidth, roadLeft, roadW;
     let carWidth, carHeight, fontSize; 
-    let cameraScale = 1;
-    let contentHeight = 0;
+    
+    // 移除 cameraScale 变量
     
     let isPaused = false;
     let isFinished = false;
 
-    // 圆角矩形辅助 (用于标签)
+    // 圆角矩形辅助
     CanvasRenderingContext2D.prototype.roundRect = CanvasRenderingContext2D.prototype.roundRect || function (x, y, w, h, r) {
         if (w < 2 * r) r = w / 2;
         if (h < 2 * r) r = h / 2;
@@ -256,13 +255,10 @@
             const rowGap = this.height * 1.7; 
             this.targetY = startY + row * rowGap;
 
-            if (this.targetY + this.height > contentHeight) {
-                contentHeight = this.targetY + this.height;
-            }
-
             if (!this.hasSpawned) {
                 this.x = this.targetX; 
-                this.y = this.targetY + (h / cameraScale) + 400; 
+                // 直接使用屏幕高度h计算入场位置，不再除以cameraScale
+                this.y = this.targetY + h + 200; 
                 this.hasSpawned = true;
             }
 
@@ -333,8 +329,7 @@
         roadLeft = (w - roadW) / 2;
         laneWidth = roadW / LANE_COUNT;
 
-        // 【关键修改】大幅减小车宽占比，增加左右间距
-        // 从 0.65 降到 0.52，留出近一半的空隙
+        // 车身比例维持在0.52，左右间距宽敞
         carWidth = laneWidth * 0.52; 
         carHeight = carWidth * 1.6; 
         
@@ -343,7 +338,8 @@
     window.addEventListener('resize', resize);
 
     function drawRoad() {
-        const drawH = (h / cameraScale) + 600; 
+        // 固定赛道长度，不再随镜头伸缩
+        const drawH = h + 100; 
 
         ctx.fillStyle = "#555";
         ctx.fillRect(roadLeft, 0, roadW, drawH);
@@ -401,12 +397,12 @@
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         ctx.clearRect(0, 0, w, h);
 
-        contentHeight = 0;
+        // --- 核心：不再进行镜头缩放 ---
         
         const topMargin = h * 0.22; 
         const rowGap = carHeight * 1.7;
         const groupGap = rowGap * 1.2; 
-        const bottomPadding = h * 0.25; 
+        // 移除了 bottomPadding 的计算，因为不需要算总高度了
 
         const oldCars = cars.filter(c => c.foundYear < currentYear);
         const newCars = cars.filter(c => c.foundYear === currentYear);
@@ -419,22 +415,8 @@
             newCarsStartY = topMargin + oldRows * rowGap + groupGap;
         }
 
-        let totalH = newCarsStartY;
-        if (newCars.length > 0) {
-            totalH += (newRows - 1) * rowGap + carHeight; 
-        } else if (oldCars.length > 0) {
-            totalH = topMargin + (oldRows - 1) * rowGap + carHeight;
-        }
-        totalH += bottomPadding;
-
-        let targetScale = totalH > h ? h / totalH : 1;
-        targetScale = Math.max(targetScale, 0.4); 
-        cameraScale += (targetScale - cameraScale) * 0.1;
-
-        const centerX = w / 2;
-        ctx.translate(centerX, 0);
-        ctx.scale(cameraScale, cameraScale);
-        ctx.translate(-centerX, 0);
+        // 不再平移画布，直接绘制
+        // (注：原本的 translate(centerX...) 是为了配合缩放，现在也不需要了，因为 drawRoad 里的 roadLeft 已经居中了)
 
         drawRoad();
 
@@ -502,7 +484,6 @@
         yearTimer = 0; 
         isPaused = false;
         isFinished = false;
-        cameraScale = 1;
         
         yearText.innerText = currentYear;
         countNum.innerText = "1"; 
