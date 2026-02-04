@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>中国万亿GDP城市 - 五车道版</title>
+    <title>中国万亿GDP城市 - 六车道版</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     
@@ -12,6 +12,7 @@
             margin: 0;
             overflow: hidden;
             background-color: #2E7D32; 
+            /* 使用系统默认字体栈，保证清晰度 */
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
             -webkit-user-select: none;
             user-select: none;
@@ -29,9 +30,10 @@
             height: 100%;
         }
 
+        /* --- UI 层 --- */
         #ui-layer {
             position: absolute;
-            top: 5vh; 
+            top: 5vh;
             width: 100%;
             text-align: center;
             color: #fff;
@@ -40,7 +42,7 @@
         }
         #year-display {
             font-family: 'Press Start 2P', cursive;
-            font-size: 28px; 
+            font-size: 28px;
             margin-bottom: 6px;
             color: #fff;
             text-shadow: 2px 2px 0 #000;
@@ -84,6 +86,7 @@
             color: #333;
         }
 
+        /* --- 底部控制栏 --- */
         #controls-bar {
             position: absolute;
             bottom: 4vh;
@@ -198,8 +201,8 @@
     let yearTimer = 0;
     const YEAR_DURATION = 2500; 
     
-    // 【关键修改】改为5车道
-    const LANE_COUNT = 5; 
+    // 【关键修改】改为6车道
+    const LANE_COUNT = 6; 
     
     let laneWidth, roadLeft, roadW;
     let carWidth, carHeight, fontSize; 
@@ -311,14 +314,14 @@
         ctx.resetTransform();
         ctx.scale(dpr, dpr);
 
-        // 96% 屏幕宽度
-        const maxRoadWidth = 700; 
-        roadW = Math.min(w * 0.96, maxRoadWidth);
+        // 【关键修改】赛道更宽：98% 屏幕宽度，挤满屏幕
+        const maxRoadWidth = 800; // 平板上限调大
+        roadW = Math.min(w * 0.98, maxRoadWidth);
         roadLeft = (w - roadW) / 2;
         laneWidth = roadW / LANE_COUNT;
 
-        // 【关键修改】车身占比：因为车道变窄了，车身占比稍微调大一点点(0.62)保证饱满
-        carWidth = laneWidth * 0.62; 
+        // 【关键修改】车身占比：因为车道变窄，车身占比提升到 0.65，防止车太小
+        carWidth = laneWidth * 0.65; 
         carHeight = carWidth * 1.6;
         
         fontSize = Math.floor(carWidth * 0.45);
@@ -336,7 +339,7 @@
         }
 
         ctx.fillStyle = "#EEE"; 
-        const borderW = roadW * 0.02; // 路肩稍微细一点
+        const borderW = roadW * 0.02; // 路肩再细一点
         ctx.fillRect(roadLeft - borderW, 0, borderW, drawH); 
         ctx.fillRect(roadLeft + roadW, 0, borderW, drawH);   
 
