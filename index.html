@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>中国万亿GDP城市 - 六车道版</title>
+    <title>中国万亿GDP城市 - 宽间距像素版</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     
@@ -12,7 +12,7 @@
             margin: 0;
             overflow: hidden;
             background-color: #2E7D32; 
-            /* 使用系统默认字体栈，保证清晰度 */
+            /* 系统字体栈 */
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
             -webkit-user-select: none;
             user-select: none;
@@ -201,7 +201,7 @@
     let yearTimer = 0;
     const YEAR_DURATION = 2500; 
     
-    // 【关键修改】改为6车道
+    // 6车道
     const LANE_COUNT = 6; 
     
     let laneWidth, roadLeft, roadW;
@@ -211,6 +211,20 @@
     
     let isPaused = false;
     let isFinished = false;
+
+    // 圆角矩形辅助 (用于标签)
+    CanvasRenderingContext2D.prototype.roundRect = CanvasRenderingContext2D.prototype.roundRect || function (x, y, w, h, r) {
+        if (w < 2 * r) r = w / 2;
+        if (h < 2 * r) r = h / 2;
+        this.beginPath();
+        this.moveTo(x + r, y);
+        this.arcTo(x + w, y, x + w, y + h, r);
+        this.arcTo(x + w, y + h, x, y + h, r);
+        this.arcTo(x, y + h, x, y, r);
+        this.arcTo(x, y, x + w, y, r);
+        this.closePath();
+        return this;
+    }
 
     class Car {
         constructor(name, foundYear, index) {
@@ -260,11 +274,11 @@
         draw(ctx) {
             const x = this.x + this.currentDrift;
             const y = this.y;
-            // 阴影
+            // 1. 阴影 
             ctx.fillStyle = "rgba(0,0,0,0.4)";
             ctx.fillRect(x + this.width*0.15, y + this.width*0.15, this.width, this.height);
             
-            // 轮胎
+            // 2. 轮胎
             ctx.fillStyle = "#111";
             const wW = this.width * 0.18; 
             const wH = this.height * 0.22; 
@@ -273,16 +287,16 @@
             ctx.fillRect(x - wW/2, y + this.height - wH*1.5, wW, wH); 
             ctx.fillRect(x + this.width - wW/2, y + this.height - wH*1.5, wW, wH);
             
-            // 车身
+            // 3. 车身
             ctx.fillStyle = this.mainColor;
             ctx.fillRect(x, y, this.width, this.height);
-            // 玻璃
+            // 4. 玻璃
             ctx.fillStyle = "#283593";
             ctx.fillRect(x + this.width*0.1, y + this.height*0.18, this.width*0.8, this.height*0.2);
-            // 尾翼
+            // 5. 尾翼
             ctx.fillStyle = "rgba(0,0,0,0.25)";
             ctx.fillRect(x + this.width*0.05, y + this.height*0.82, this.width*0.9, this.height*0.12);
-            // 文字
+            // 6. 文字
             this.drawBodyText(ctx, x, y);
         }
 
@@ -291,8 +305,8 @@
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
             ctx.fillStyle = "#fff";
-            ctx.shadowColor = "rgba(0,0,0,0.3)";
-            ctx.shadowBlur = 0; ctx.shadowOffsetX = 1; ctx.shadowOffsetY = 1;
+            ctx.shadowColor = "rgba(0,0,0,0.5)";
+            ctx.shadowBlur = 0; ctx.shadowOffsetX = 2; ctx.shadowOffsetY = 2;
             
             const textYStart = y + this.height * 0.52;
             const textGap = fontSize * 1.1;
@@ -314,15 +328,15 @@
         ctx.resetTransform();
         ctx.scale(dpr, dpr);
 
-        // 【关键修改】赛道更宽：98% 屏幕宽度，挤满屏幕
-        const maxRoadWidth = 800; // 平板上限调大
+        const maxRoadWidth = 800; 
         roadW = Math.min(w * 0.98, maxRoadWidth);
         roadLeft = (w - roadW) / 2;
         laneWidth = roadW / LANE_COUNT;
 
-        // 【关键修改】车身占比：因为车道变窄，车身占比提升到 0.65，防止车太小
-        carWidth = laneWidth * 0.65; 
-        carHeight = carWidth * 1.6;
+        // 【关键修改】大幅减小车宽占比，增加左右间距
+        // 从 0.65 降到 0.52，留出近一半的空隙
+        carWidth = laneWidth * 0.52; 
+        carHeight = carWidth * 1.6; 
         
         fontSize = Math.floor(carWidth * 0.45);
     }
@@ -339,7 +353,7 @@
         }
 
         ctx.fillStyle = "#EEE"; 
-        const borderW = roadW * 0.02; // 路肩再细一点
+        const borderW = roadW * 0.02; 
         ctx.fillRect(roadLeft - borderW, 0, borderW, drawH); 
         ctx.fillRect(roadLeft + roadW, 0, borderW, drawH);   
 
@@ -369,7 +383,8 @@
         ctx.fillStyle = currentColor; 
         const labelW = fontSize * 7; 
         const labelH = fontSize * 1.8;  
-        ctx.fillRect(-labelW/2, -labelH/2, labelW, labelH);
+        ctx.roundRect(-labelW/2, -labelH/2, labelW, labelH, labelH/2);
+        ctx.fill();
 
         ctx.font = `bold ${fontSize}px sans-serif`; 
         ctx.textAlign = "center";
