@@ -3,86 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>中国万亿GDP城市 - 全屏适配版</title>
+    <title>中国万亿GDP城市 - 完美大结局</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     
     <style>
-        /* --- 基础设置 --- */
+        /* --- 1. 基础样式 --- */
         body { 
-            margin: 0; overflow: hidden; background: #222; 
+            margin: 0; overflow: hidden; background: #111; 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
             touch-action: none; user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* --- 容器直接铺满屏幕，不再通过 CSS scale --- */
-        #game-container {
+        /* --- 2. 舞台容器 --- */
+        #stage-container {
             position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
+            display: flex; justify-content: center; align-items: center;
+            background: #333; overflow: hidden;
+        }
+
+        /* --- 3. 游戏核心 --- */
+        #game-stage {
+            position: relative;
+            width: 750px; height: 1500px; 
             background: #2E7D32; 
-            overflow: hidden;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
         }
 
         canvas { display: block; width: 100%; height: 100%; }
 
-        /* --- 幽灵点击层 --- */
+        /* --- 4. 幽灵点击层 --- */
         #hitbox-layer {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; z-index: 50;
         }
         .car-hitbox {
-            position: absolute;
-            background: transparent; /* 调试可改为 rgba(255,0,0,0.3) */
-            cursor: pointer;
-            pointer-events: auto; /* 允许点击 */
-            z-index: 51;
+            position: absolute; background: transparent; cursor: pointer;
+            pointer-events: auto; z-index: 51;
         }
 
-        /* --- UI 层 --- */
+        /* --- 5. UI 层 --- */
         #ui-layer {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; z-index: 100;
             display: flex; flex-direction: column; justify-content: space-between;
-            padding: 40px 20px; box-sizing: border-box;
+            /* 顶部留白增加，底部留白增加 */
+            padding: 50px 20px 40px 20px; box-sizing: border-box;
         }
-
-        /* 顶部 */
         .top-bar { text-align: center; color: #fff; transform-origin: top center; transform: scale(1.1); }
         #year-display { 
             font-family: 'Press Start 2P', cursive;
-            font-size: 32px; margin-bottom: 8px; 
+            font-size: 36px; margin-bottom: 10px; 
             text-shadow: 3px 3px 0 #000;
         }
         #info-pill { 
             background: rgba(0,0,0,0.6); display: inline-flex; align-items: center; 
-            padding: 6px 16px; border-radius: 40px; border: 2px solid rgba(255,255,255,0.5); font-size: 14px; font-weight: bold;
+            padding: 8px 20px; border-radius: 40px; border: 2px solid rgba(255,255,255,0.5); font-size: 16px; font-weight: bold;
         }
-        #count-num { color: #FFEB3B; font-family: 'Press Start 2P'; margin: 0 5px; font-size: 14px; }
+        #count-num { color: #FFEB3B; font-family: 'Press Start 2P'; margin: 0 5px; font-size: 18px; }
 
-        /* 底部 */
         .bottom-bar { 
             display: flex; justify-content: center; gap: 20px; 
             pointer-events: none; padding-bottom: 30px;
         }
         .pixel-btn {
             pointer-events: auto; 
-            font-family: sans-serif; font-weight: 900;
-            font-size: 16px; color: #fff; background: #333;
-            border: 3px solid #fff; padding: 12px 30px;
-            box-shadow: 4px 4px 0 #000; border-radius: 8px;
+            font-weight: 900; font-size: 18px; color: #fff; background: #333;
+            border: 3px solid #fff; padding: 15px 35px;
+            box-shadow: 4px 4px 0 #000; border-radius: 10px;
             cursor: pointer;
         }
         .pixel-btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #000; }
         
-        /* 黄色分享按钮 */
-        #btn-share { 
-            background: #FFEB3B; color: #333; border-color: #fff; 
-        }
+        #btn-share { background: #FFEB3B; color: #333; border-color: #fff; }
         .btn-replay { background: #D32F2F !important; animation: pulseBtn 1s infinite; }
         @keyframes pulseBtn { 0% {transform: scale(1);} 50% {transform: scale(1.05);} 100% {transform: scale(1);} }
 
-        /* --- 弹窗 --- */
+        /* --- 6. 弹窗 (精修版) --- */
         #modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85); z-index: 2000;
@@ -92,27 +91,31 @@
         #modal-box {
             width: 90%; max-width: 600px; height: 55vh;
             background: #fff; 
-            border-radius: 16px; overflow: hidden;
+            border-radius: 20px; overflow: hidden;
             display: flex; flex-direction: column;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
             animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         @keyframes popIn { from {transform: scale(0.9); opacity: 0;} to {transform: scale(1); opacity: 1;} }
 
         #modal-header {
-            background: #FFEB3B; color: #333; padding: 15px;
-            font-size: 16px; font-weight: 900; text-align: center;
-            border-bottom: 1px solid #ddd; position: relative; line-height: 1.4;
+            background: linear-gradient(135deg, #FFEB3B, #FDD835); 
+            color: #333; padding: 15px 20px;
+            text-align: center; position: relative;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 10;
         }
+        #m-title { font-size: 18px; font-weight: 900; display: block; margin-bottom: 4px; }
+        #m-subtitle { font-size: 12px; color: #555; font-weight: normal; opacity: 0.8; }
+        
         #modal-close {
-            position: absolute; right: 0; top: 0; height: 100%; width: 50px;
-            font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-            color: #333;
+            position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+            font-size: 32px; cursor: pointer; padding: 10px; font-weight: 300; color: #333;
+            line-height: 1;
         }
-        #chart-container { flex: 1; position: relative; width: 100%; overflow: hidden; }
+        #chart-container { flex: 1; position: relative; width: 100%; overflow: hidden; background: #fff; }
         #echarts-dom { width: 100%; height: 100%; }
 
-        /* --- Toast --- */
+        /* --- 7. Toast --- */
         #toast {
             position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
             background: rgba(0,0,0,0.9); color: #FFEB3B; padding: 15px 30px;
@@ -124,20 +127,22 @@
 </head>
 <body>
 
-<div id="game-container">
-    <canvas id="main-canvas"></canvas>
-    <div id="hitbox-layer"></div>
-    
-    <div id="ui-layer">
-        <div class="top-bar">
-            <div id="year-display">2006</div>
-            <div id="info-pill">
-                <span>万亿城市</span><span id="count-num">1</span><span>个</span>
+<div id="stage-container">
+    <div id="game-stage">
+        <canvas id="main-canvas" width="750" height="1500"></canvas>
+        <div id="hitbox-layer"></div>
+        
+        <div id="ui-layer">
+            <div class="top-bar">
+                <div id="year-display">2006</div>
+                <div id="info-pill">
+                    <span>万亿城市</span><span id="count-num">1</span><span>个</span>
+                </div>
             </div>
-        </div>
-        <div class="bottom-bar">
-            <button id="btn-toggle" class="pixel-btn">暂停</button>
-            <button id="btn-share" class="pixel-btn">分享</button>
+            <div class="bottom-bar">
+                <button id="btn-toggle" class="pixel-btn">暂停</button>
+                <button id="btn-share" class="pixel-btn">分享</button>
+            </div>
         </div>
     </div>
 </div>
@@ -145,7 +150,8 @@
 <div id="modal-overlay">
     <div id="modal-box">
         <div id="modal-header">
-            <span id="m-title">GDP 数据</span>
+            <span id="m-title">上海 GDP变化</span>
+            <span id="m-subtitle">单位：亿元人民币</span>
             <div id="modal-close">×</div>
         </div>
         <div id="chart-container">
@@ -157,7 +163,7 @@
 <div id="toast"></div>
 
 <script>
-    // --- 1. 数据配置 ---
+    // --- 1. 数据源 ---
     const gdpData = {
         "上海": {2025:56709,2024:53927,2023:51405,2022:48595,2021:47059,2020:41604,2019:40241,2018:37769,2017:34378,2016:30964,2015:27822,2014:25965,2013:23809,2012:21775,2011:20406,2010:18320,2009:16181,2008:14877,2007:13180,2006:10825},
         "北京": {2025:52073,2024:49843,2023:47354,2022:45222,2021:44351,2020:38504,2019:37767,2018:35161,2017:31326,2016:28439,2015:26034,2014:23578,2013:21746,2012:19568,2011:17653,2010:15420,2009:13336,2008:12168,2007:10730,2006:8619},
@@ -205,6 +211,10 @@
     const yearColors = ['#F44336', '#2196F3', '#4CAF50', '#FFC107', '#9C27B0', '#FF5722', '#00BCD4', '#E91E63'];
 
     // --- 全局变量 ---
+    const LOGIC_W = 750;
+    const LOGIC_H = 1500; 
+    const stageContainer = document.getElementById('game-stage');
+    const hitboxLayer = document.getElementById('hitbox-layer');
     const canvas = document.getElementById('main-canvas');
     const ctx = canvas.getContext('2d');
     
@@ -213,9 +223,9 @@
     const btnToggle = document.getElementById('btn-toggle');
     const btnShare = document.getElementById('btn-share');
     const toast = document.getElementById('toast');
-    const hitboxLayer = document.getElementById('hitbox-layer');
     const modalOverlay = document.getElementById('modal-overlay');
     const modalTitle = document.getElementById('m-title');
+    const modalSubtitle = document.getElementById('m-subtitle');
     
     let myChart = null;
     let cars = [];
@@ -242,24 +252,21 @@
         w = window.innerWidth;
         h = window.innerHeight;
         
-        // Canvas 设置为真实像素大小
         canvas.width = w * dpr;
         canvas.height = h * dpr;
         
-        // 关键：铺满屏幕宽度，96%
         roadW = w * 0.96;
         roadLeft = (w - roadW) / 2;
         laneWidth = roadW / LANE_COUNT;
         
-        // 关键：车高固定比例，不随屏幕高度拉伸
         carWidth = laneWidth * 0.55; 
-        carHeight = carWidth * 1.6; // 永远保持 1.6 倍长宽比
+        carHeight = carWidth * 1.6; 
         fontSize = Math.floor(carWidth * 0.45);
         
         if(myChart) myChart.resize();
     }
     window.addEventListener('resize', resize);
-    resize(); // 初始化调用
+    resize(); 
 
     // Canvas 圆角
     CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
@@ -287,7 +294,6 @@
             this.driftPhase = Math.random() * Math.PI * 2;
             this.hasSpawned = false;
 
-            // DOM 幽灵层
             this.hitbox = document.createElement('div');
             this.hitbox.className = 'car-hitbox';
             
@@ -307,7 +313,6 @@
         }
 
         update(rankIndex, startY) {
-            // 实时更新尺寸（应对屏幕旋转）
             this.width = carWidth;
             this.height = carHeight;
 
@@ -319,7 +324,6 @@
 
             if(!this.hasSpawned) {
                 this.x = this.targetX;
-                // 逻辑高度下方入场
                 this.y = this.targetY + (h / cameraScale) + 300; 
                 this.hasSpawned = true;
             }
@@ -328,15 +332,7 @@
             this.y += (this.targetY - this.y) * 0.08;
             this.currentDrift = Math.sin(Date.now()/250 + this.driftPhase) * 2;
 
-            // 同步 DOM 
-            // 此时 Canvas 已经 scale(dpr)，我们需要计算 CSS 像素位置
-            // 逻辑坐标 -> CSS 坐标
             const centerX = w / 2;
-            // 考虑 Canvas 的 scale(dpr) 和 相机 scale
-            // 这里我们直接映射逻辑坐标即可，因为 hitboxes 是覆盖在 screen 上的
-            
-            // 修正：gameLoop 中 ctx 进行了 cameraScale 缩放
-            // 变换原点是 centerX, 0
             const finalX = (this.x + this.currentDrift - centerX) * cameraScale + centerX;
             const finalY = this.y * cameraScale;
             
@@ -380,12 +376,11 @@
     }
 
     function gameLoop() {
-        // 重置矩阵并清空
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0); 
         ctx.clearRect(0, 0, w, h);
 
-        // 动态计算边距 (基于屏幕高度 h)
-        const topMargin = h * 0.15; 
+        // 【修改点】顶部留白增加到 25%，防止遮挡
+        const topMargin = h * 0.25; 
         const rowGap = carHeight * 1.5;
         const groupGap = rowGap * 1.2;
         const bottomPadding = h * 0.25;
@@ -403,7 +398,6 @@
             separators = [];
         }
 
-        // --- 智能缩放 ---
         let totalH = newCarsStartY;
         if (newCars.length > 0) {
             totalH += (newRows - 1) * rowGap + carHeight; 
@@ -412,20 +406,15 @@
         }
         totalH += bottomPadding;
 
-        // 如果内容高度超过屏幕高度，则缩小
-        // 注意：计算逻辑高度时不需要乘 dpr，因为我们是在逻辑空间计算
         let targetScale = totalH > h ? h / totalH : 1;
         targetScale = Math.max(targetScale, 0.4); 
         cameraScale += (targetScale - cameraScale) * 0.1;
 
-        // 应用缩放
         const centerX = w / 2;
         ctx.translate(centerX, 0);
         ctx.scale(cameraScale, cameraScale);
         ctx.translate(-centerX, 0);
 
-        // 绘制路面
-        // 路面高度反向补偿缩放，确保填满
         const drawH = h / cameraScale;
         ctx.fillStyle = "#555"; ctx.fillRect(roadLeft, 0, roadW, drawH);
         if(!isPaused && !isFinished) roadScroll = (roadScroll + ROAD_SPEED) % 80;
@@ -492,7 +481,8 @@
 
     function openChart(name) {
         isPaused = true;
-        modalTitle.innerText = "2006-2025 " + name + " GDP变化（单位：亿人民币）";
+        modalTitle.innerText = "2006-2025 " + name + " GDP变化";
+        modalSubtitle.innerText = "单位：亿元人民币";
         modalOverlay.style.display = "flex";
         
         const dom = document.getElementById('echarts-dom');
@@ -506,19 +496,19 @@
         
         const option = {
             tooltip: { trigger: 'axis', formatter: '{b}年: {c}亿元' },
-            grid: { top: 40, right: 50, bottom: 20, left: 60, containLabel: true },
+            grid: { top: 40, right: 20, bottom: 20, left: 50, containLabel: true },
             xAxis: { type: 'category', data: years, axisLabel: { interval: 3 } },
             yAxis: { type: 'value', splitLine: { lineStyle: { type: 'dashed' } } },
             series: [{
-                data: values, type: 'line', smooth: true,
+                data: values, type: 'line', smooth: true, showSymbol: false, // 隐藏默认圆点
                 itemStyle: { color: '#4CAF50' },
                 markLine: {
                     symbol: 'none',
-                    label: { position: 'end', formatter: '万亿', color: '#FF5722' },
+                    label: { position: 'insideEndTop', formatter: '万亿', color: '#FF5722' },
                     lineStyle: { color: '#FF5722', type: 'dashed', width: 2 },
                     data: [ { yAxis: 10000 } ]
                 },
-                label: { show: true, position: 'top', fontSize: 10, color: '#333' },
+                // 去掉 label: { show: true }，保持画面整洁
                 areaStyle: {
                     color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
                         { offset: 0, color: 'rgba(76, 175, 80, 0.5)' },
