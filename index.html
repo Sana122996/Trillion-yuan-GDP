@@ -13,8 +13,8 @@
         body { 
             margin: 0; overflow: hidden; 
             background: #050505; 
-            /* 强制使用系统最粗黑体，拒绝黄油体 */
-            font-family: "PingFang SC", "Microsoft YaHei", "Heiti SC", sans-serif;
+            /* 强制系统黑体，拒绝任何花哨字体 */
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Heiti SC", sans-serif;
             touch-action: none; user-select: none;
             -webkit-tap-highlight-color: transparent;
             display: flex; justify-content: center;
@@ -69,10 +69,11 @@
 
         .title-box { text-align: center; color: #fff; margin-bottom: 40px; z-index: 20; }
         
-        /* 核心修改：回归纯正黑体 */
+        /* 核心修改：大标题使用最粗的黑体 */
         .main-title { 
-            font-weight: 900; /* 极粗 */
-            font-size: 42px; line-height: 1.2;
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+            font-weight: 900; /* 最粗 */
+            font-size: 40px; line-height: 1.3;
             color: #FFEB3B; letter-spacing: 2px; margin: 0;
             text-shadow: 0 4px 0 #000, 0 0 30px rgba(255, 235, 59, 0.4);
             font-style: italic; transform: skewX(-5deg);
@@ -87,6 +88,7 @@
         }
 
         .start-btn {
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
             font-weight: 900; font-size: 22px; color: #000; 
             background: linear-gradient(135deg, #FFEB3B 0%, #FBC02D 100%);
             border: 4px solid #000; padding: 16px 64px; 
@@ -96,7 +98,7 @@
             animation: engineStart 1.5s infinite ease-in-out alternate;
             position: relative; letter-spacing: 2px;
         }
-        .start-btn span { display: block; transform: skewX(10deg); } /* 修正文字倾斜 */
+        .start-btn span { display: block; transform: skewX(10deg); }
 
         @keyframes engineStart {
             0% { transform: skewX(-10deg) scale(1); filter: brightness(1); }
@@ -368,7 +370,7 @@
     let isGameStarted = false;
     
     let displayedCount = 0;
-    let fixedFinishLineY = 0; // 固定的终点线坐标
+    let fixedFinishLineY = 0; 
 
     const LANE_COUNT = 6;
     let w, h, dpr;
@@ -494,8 +496,9 @@
             // 冲线计数逻辑 (y坐标变小意味着向上移动)
             if (!this.isCounted && this.y < fixedFinishLineY + 30) {
                 this.isCounted = true;
-                displayedCount++;
-                uiCount.innerText = displayedCount;
+                // --- V81: 实时计算，不依赖累加 ---
+                // displayedCount 由 loop 中的 filter 计算，这里只做触发
+                // uiCount.innerText = displayedCount; 
             }
 
             if (isFinished) {
@@ -531,7 +534,6 @@
                 const arrowHeight = 8;
                 
                 let centerX = x + this.width / 2;
-                // --- 智能防遮挡 ---
                 let boxLeft = centerX - boxWidth / 2;
                 if (boxLeft < 10) centerX = 10 + boxWidth / 2;
                 const rightBound = w / cameraScale - 10;
@@ -590,10 +592,8 @@
         const topMargin = h * 0.25; 
         const rowGap = carHeight * 1.5;
         const groupGap = rowGap * 1.2;
-        // 核心修复：大幅增加底部留白，防止被手机UI遮挡
         const bottomPadding = h * 0.5; 
 
-        // 如果比赛结束，我们将所有车合并到一个列表，统一计算位置
         let renderList = [];
         if (isFinished) {
             renderList = [...cars].sort((a,b) => a.foundYear - b.foundYear || a.originalIndex - b.originalIndex);
@@ -620,7 +620,6 @@
         // --- 智能缩放 ---
         const totalRows = Math.ceil(renderList.length / LANE_COUNT);
         let totalH = topMargin + (totalRows) * rowGap + bottomPadding;
-        
         let targetScale = totalH > h ? h / totalH : 1;
         targetScale = Math.max(targetScale, 0.4); 
         cameraScale += (targetScale - cameraScale) * 0.1;
@@ -645,12 +644,21 @@
             for(let y=-80; y<drawH; y+=80) ctx.fillRect(lx-2, y+roadScroll, 4, 40);
         }
 
-        // 1. 绘制固定终点线 (不随车移动，固定在屏幕下方)
+        // 1. 绘制固定终点线 (世界坐标转换)
         const worldLineY = fixedFinishLineY / cameraScale;
         drawFinishLine(ctx, worldLineY, roadW);
 
         // 2. 绘制车
         renderList.forEach(car => car.draw(ctx));
+
+        // --- V81核心：实时更新计数器 (防止31个的问题) ---
+        // 统计所有 y < worldLineY + 20 的车辆
+        if (isGameStarted) {
+             const crossedCount = renderList.filter(c => c.y < worldLineY + 30).length;
+             // 数字只能增加不能减少，防止抖动
+             const currentDisplay = parseInt(uiCount.innerText) || 0;
+             uiCount.innerText = Math.max(crossedCount, currentDisplay);
+        }
 
         if(!isPaused && !isFinished && isGameStarted) {
             yearTimer += 16;
@@ -661,16 +669,19 @@
                     currentYear = activeYears[currentYearIndex];
                     uiYear.innerText = currentYear;
                     timeline[currentYear].forEach(name => {
-                        cars.push(new Car(name, currentYear, cars.length));
+                        // V81: 防止重复添加
+                        if(!cars.some(c => c.name === name)){
+                             cars.push(new Car(name, currentYear, cars.length));
+                        }
                     });
                 } else {
-                    // 强制结束机制：如果超时3秒，无论计数如何，直接结束
-                    // 这样可以防止因卡顿导致的死循环
-                    if((displayedCount >= 29 && yearTimer > 1000) || yearTimer > 3000) {
+                    // V81: 强制结束机制，3秒超时自动结算
+                    const totalCars = Object.values(timeline).flat().length;
+                    const currentCount = parseInt(uiCount.innerText);
+                    
+                    if((currentCount >= totalCars && yearTimer > 1000) || yearTimer > 3000) {
                         isFinished = true;
-                        displayedCount = cars.length; // 修正显示数量
-                        uiCount.innerText = displayedCount;
-                        
+                        uiCount.innerText = totalCars; // 强制修正为正确总数
                         btnToggle.innerText = "重播";
                         btnToggle.classList.add('btn-replay');
                         btnSkip.style.display = 'none';
@@ -733,18 +744,18 @@
         
         activeYears.forEach(year => {
             timeline[year].forEach(name => {
-                const car = new Car(name, year, cars.length);
-                car.isCounted = true; 
-                cars.push(car);
+                if(!cars.some(c => c.name === name)){
+                     cars.push(new Car(name, year, cars.length));
+                }
             });
         });
 
         currentYearIndex = activeYears.length - 1;
         currentYear = activeYears[currentYearIndex];
         
-        displayedCount = cars.length; 
         uiYear.innerText = currentYear;
-        uiCount.innerText = displayedCount;
+        // V81: 修正跳过时的计数
+        uiCount.innerText = cars.length;
         
         isFinished = true;
         btnToggle.innerText = "重播";
@@ -760,7 +771,9 @@
             isPaused = false;
             isGameStarted = true;
             uiLayer.classList.add('show');
-            timeline[currentYear].forEach(name => cars.push(new Car(name, currentYear, cars.length)));
+            timeline[currentYear].forEach(name => {
+                if(!cars.some(c => c.name === name)) cars.push(new Car(name, currentYear, cars.length));
+            });
         }, 500); 
     };
 
@@ -770,11 +783,12 @@
             cars = [];
             currentYearIndex = 0; currentYear = activeYears[0];
             yearTimer = 0; isFinished = false; isPaused = false;
-            displayedCount = 0; 
             uiYear.innerText = currentYear; uiCount.innerText = 0;
             btnToggle.innerText = "暂停"; btnToggle.classList.remove('btn-replay');
             btnSkip.style.display = 'block';
-            timeline[currentYear].forEach(name => cars.push(new Car(name, currentYear, cars.length)));
+            timeline[currentYear].forEach(name => {
+                if(!cars.some(c => c.name === name)) cars.push(new Car(name, currentYear, cars.length));
+            });
         } else {
             isPaused = !isPaused;
             btnToggle.innerText = isPaused ? "继续" : "暂停";
