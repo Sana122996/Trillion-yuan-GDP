@@ -22,17 +22,16 @@
         /* --- 2. 游戏容器 --- */
         #game-container {
             position: relative;
-            width: 100%; max-width: 500px;
+            width: 100%; max-width: 500px; /* 限制PC端宽度 */
             height: 100vh;
             background: #2E7D32; 
             overflow: hidden;
             box-shadow: 0 0 50px rgba(0,0,0,0.5);
         }
 
-        /* --- 3. 首页 (修正版) --- */
+        /* --- 3. 首页 --- */
         #start-screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            /* 更有质感的黑金背景 */
             background: linear-gradient(180deg, #1a1a1a 0%, #000000 100%);
             z-index: 10000;
             display: flex; flex-direction: column; 
@@ -42,24 +41,16 @@
         }
         #start-screen.hidden { transform: translateY(-100%); }
 
-        /* Logo 区域 - 核心修复 */
         .logo-box {
-            width: 100%;
-            height: 80px; /* 给定固定高度 */
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            width: 100%; height: 80px; 
+            display: flex; justify-content: center; align-items: center;
             margin-bottom: 40px;
         }
         .logo-img {
-            /* 关键：使用 contain 保持比例，max-width 限制大小 */
-            height: 100%; 
-            width: auto; 
-            max-width: 200px;
+            height: 100%; width: auto; max-width: 200px;
             object-fit: contain; 
         }
 
-        /* 标题 */
         .title-box { text-align: center; color: #fff; margin-bottom: 50px; z-index: 10; }
         .main-title { 
             font-weight: 900; font-size: 34px; line-height: 1.3;
@@ -73,27 +64,30 @@
             margin-top: 10px; letter-spacing: 4px; text-transform: uppercase;
         }
 
-        /* 按钮 */
         .start-btn {
             font-weight: 700; font-size: 20px; color: #000; 
             background: linear-gradient(135deg, #FFEB3B, #FDD835);
             border: none; padding: 18px 64px; border-radius: 50px;
             cursor: pointer; z-index: 20; outline: none;
             box-shadow: 0 4px 15px rgba(253, 216, 53, 0.3);
+            position: relative; overflow: hidden;
             animation: breathe 2s infinite ease-in-out;
         }
+        .start-btn::after {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: shine 3s infinite;
+        }
+        @keyframes shine { 0% {left: -100%;} 20% {left: 100%;} 100% {left: 100%;} }
         @keyframes breathe {
             0%, 100% { transform: scale(1); box-shadow: 0 4px 15px rgba(253, 216, 53, 0.3); }
             50% { transform: scale(1.05); box-shadow: 0 4px 25px rgba(253, 216, 53, 0.6); }
         }
 
-        /* 城市剪影插画 (调整颜色对比度) */
-        .skyline-svg {
-            position: absolute; bottom: 0; left: 0; width: 100%; 
-            height: auto; max-height: 40vh;
-            pointer-events: none; z-index: 1;
-            /* 稍微透明一点，让黑色背景透出来，融合感更好 */
-            opacity: 0.9;
+        .city-skyline-svg {
+            position: absolute; bottom: 0; left: 0; width: 100%;
+            height: auto; max-height: 45%;
+            pointer-events: none; z-index: 1; opacity: 0.9;
         }
 
         /* --- 4. 游戏画布 --- */
@@ -109,7 +103,7 @@
         }
         #ui-layer.show { opacity: 1; }
 
-        .top-bar { text-align: center; color: #fff; }
+        .top-bar { text-align: center; color: #fff; position: relative; }
         #year-display { 
             font-family: 'Press Start 2P', cursive;
             font-size: 32px; margin-bottom: 12px; 
@@ -124,6 +118,25 @@
             white-space: nowrap;
         }
         #count-num { color: #FFEB3B; font-family: 'Press Start 2P'; margin: 0 8px; font-size: 16px; }
+
+        /* --- 新增：跳过按钮 (小小的，不明显) --- */
+        #btn-skip {
+            position: absolute;
+            top: 10px; right: 0;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6); /* 半透明，不明显 */
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 4px 10px;
+            border-radius: 12px;
+            cursor: pointer;
+            pointer-events: auto;
+            transition: all 0.3s;
+        }
+        #btn-skip:hover {
+            color: #fff;
+            background: rgba(255,255,255,0.2);
+            border-color: #fff;
+        }
 
         .bottom-bar { display: flex; justify-content: center; gap: 20px; pointer-events: auto; }
         .pixel-btn {
@@ -190,10 +203,8 @@
         <svg class="skyline-svg" viewBox="0 0 500 150" preserveAspectRatio="none">
             <path fill="#2c2c2c" d="M0,150 L0,50 L20,50 L20,80 L40,80 L40,40 L70,40 L70,90 L90,90 L90,60 L120,60 L120,150 Z" />
             <path fill="#2c2c2c" d="M380,150 L380,70 L410,70 L410,40 L440,40 L440,80 L460,80 L460,50 L500,50 L500,150 Z" />
-            
             <path fill="#3d3d3d" d="M100,150 L100,80 L130,80 L130,50 L160,50 L160,100 L190,100 L190,150 Z" />
             <path fill="#3d3d3d" d="M300,150 L300,90 L330,90 L330,60 L360,60 L360,150 Z" />
-            
             <path fill="#4f4f4f" d="M0,150 L0,120 L50,120 L50,150 Z" />
             <path fill="#4f4f4f" d="M150,150 L150,70 L180,70 L180,40 L220,40 L220,150 Z" />
             <path fill="#4f4f4f" d="M220,150 L220,90 L250,90 L250,50 L280,50 L280,150 Z" />
@@ -210,6 +221,7 @@
             <div id="info-pill">
                 <span>万亿GDP城市</span><span id="count-num">1</span><span>个</span>
             </div>
+            <div id="btn-skip">跳过 >></div>
         </div>
         <div class="bottom-bar">
             <button id="btn-toggle" class="pixel-btn">暂停</button>
@@ -281,7 +293,6 @@
     const activeYears = Object.keys(timeline).map(Number).sort((a,b)=>a-b);
     const yearColors = ['#F44336', '#2196F3', '#4CAF50', '#FFC107', '#9C27B0', '#FF5722', '#00BCD4', '#E91E63'];
 
-    // --- 变量 ---
     const gameContainer = document.getElementById('game-container');
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
@@ -296,6 +307,7 @@
     const modalOverlay = document.getElementById('modal-overlay');
     const modalTitle = document.getElementById('m-title');
     const modalSubtitle = document.getElementById('m-subtitle');
+    const btnSkip = document.getElementById('btn-skip');
     
     const startScreen = document.getElementById('start-screen');
     const btnStartGame = document.getElementById('btn-start-game');
@@ -320,10 +332,9 @@
     let roadW, roadLeft, laneWidth, carWidth, carHeight, fontSize;
     let cameraScale = 1;
 
-    // --- 核心：尺寸计算 (修复变形问题) ---
+    // --- 核心：尺寸计算 ---
     function resize() {
         dpr = window.devicePixelRatio || 1;
-        // 强制使用容器尺寸，而非 window
         w = gameContainer.clientWidth;
         h = gameContainer.clientHeight;
         
@@ -334,9 +345,8 @@
         roadLeft = (w - roadW) / 2;
         laneWidth = roadW / LANE_COUNT;
         
-        // 关键：基于宽度计算高度，锁定比例
         carWidth = laneWidth * 0.55; 
-        carHeight = carWidth * 1.6; // 黄金车身比例
+        carHeight = carWidth * 1.6; 
         fontSize = Math.floor(carWidth * 0.45);
         
         if(myChart) myChart.resize();
@@ -344,7 +354,6 @@
     window.addEventListener('resize', resize);
     resize(); 
 
-    // Canvas 圆角 polyfill
     CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
         if (w < 2 * r) r = w / 2;
         if (h < 2 * r) r = h / 2;
@@ -408,7 +417,6 @@
             this.y += (this.targetY - this.y) * 0.08;
             this.currentDrift = Math.sin(Date.now()/250 + this.driftPhase) * 2;
 
-            // DOM 幽灵层位置同步 (核心)
             const centerX = w / 2;
             const finalX = (this.x + this.currentDrift - centerX) * cameraScale + centerX;
             const finalY = this.y * cameraScale;
@@ -482,7 +490,6 @@
         }
         totalH += bottomPadding;
 
-        // 智能缩放：基于容器高度计算
         let targetScale = totalH > h ? h / totalH : 1;
         targetScale = Math.max(targetScale, 0.4); 
         cameraScale += (targetScale - cameraScale) * 0.1;
@@ -492,20 +499,15 @@
         ctx.scale(cameraScale, cameraScale);
         ctx.translate(-centerX, 0);
 
-        // 绘制路面
         const drawH = h / cameraScale;
-        // 背景草地
         ctx.fillStyle = "#2E7D32"; ctx.fillRect(0, 0, w, drawH);
         
-        // 沥青路
         ctx.fillStyle = "#555"; ctx.fillRect(roadLeft, 0, roadW, drawH);
         if(!isPaused && !isFinished && isGameStarted) roadScroll = (roadScroll + ROAD_SPEED) % 80;
         
-        // 路肩
         ctx.fillStyle = "#EEE"; const bW = roadW*0.02;
         ctx.fillRect(roadLeft-bW, 0, bW, drawH); ctx.fillRect(roadLeft+roadW, 0, bW, drawH);
         
-        // 车道线
         ctx.fillStyle = "rgba(255,255,255,0.4)";
         for(let i=1; i<LANE_COUNT; i++) {
             let lx = roadLeft + i*laneWidth;
@@ -544,6 +546,7 @@
                         isFinished = true;
                         btnToggle.innerText = "重播";
                         btnToggle.classList.add('btn-replay');
+                        btnSkip.style.display = 'none'; // 结束后隐藏跳过
                         showToast("🏁 统计结束！请点击车辆查看详情");
                     }
                 }
@@ -608,6 +611,38 @@
 
     document.getElementById('modal-close').onclick = () => { modalOverlay.style.display = "none"; };
 
+    // --- 跳过逻辑 (点击后直接显示最终结果) ---
+    btnSkip.onclick = () => {
+        // 清理当前状态
+        cars.forEach(c => hitboxLayer.removeChild(c.hitbox));
+        cars = [];
+        separators = [];
+        
+        // 加载所有数据
+        activeYears.forEach(year => {
+            timeline[year].forEach(name => {
+                // 直接创建并推入，gameLoop会自动布局它们
+                cars.push(new Car(name, year, cars.length));
+            });
+        });
+
+        // 设置到最后一年
+        currentYearIndex = activeYears.length - 1;
+        currentYear = activeYears[currentYearIndex];
+        
+        // 更新 UI
+        uiYear.innerText = currentYear;
+        uiCount.innerText = cars.length;
+        
+        // 设置结束状态
+        isFinished = true;
+        btnToggle.innerText = "重播";
+        btnToggle.classList.add('btn-replay');
+        btnSkip.style.display = 'none'; // 隐藏自己
+        
+        showToast("已跳过动画");
+    };
+
     btnStartGame.onclick = () => {
         startScreen.classList.add('hidden');
         setTimeout(() => {
@@ -625,6 +660,7 @@
             yearTimer = 0; isFinished = false; isPaused = false;
             uiYear.innerText = currentYear; uiCount.innerText = 1;
             btnToggle.innerText = "暂停"; btnToggle.classList.remove('btn-replay');
+            btnSkip.style.display = 'block'; // 重播时重新显示跳过
             timeline[currentYear].forEach(name => cars.push(new Car(name, currentYear, cars.length)));
         } else {
             isPaused = !isPaused;
