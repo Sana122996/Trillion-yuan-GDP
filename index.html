@@ -29,26 +29,42 @@
             box-shadow: 0 0 50px rgba(0,0,0,0.5);
         }
 
-        /* --- 3. 首页 (摩天大楼版) --- */
+        /* --- 3. 首页 (星空+超高大楼版) --- */
         #start-screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            /* 背景渐变：从顶部的深空蓝到底部的黑色 */
-            background: linear-gradient(180deg, #1e293b 0%, #000000 80%);
+            /* 更深邃的夜空背景 */
+            background: linear-gradient(180deg, #0B1026 0%, #1e293b 50%, #000000 100%);
             z-index: 10000;
             display: flex; flex-direction: column; 
             align-items: center; 
-            /* 内容稍微靠上，给底下的大楼留出空间 */
             padding-top: 10vh;
             transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+            overflow: hidden; /* 防止星星溢出 */
         }
         #start-screen.hidden { transform: translateY(-100%); }
+
+        /* --- 新增：星空效果 --- */
+        .stars-container {
+            position: absolute; top: 0; left: 0; width: 100%; height: 80%; /* 星星只在天空区域 */
+            pointer-events: none; z-index: 0;
+        }
+        .star {
+            position: absolute; background: #fff; border-radius: 50%;
+            box-shadow: 0 0 4px #fff, 0 0 8px #FFEB3B; /* 微微发光 */
+            animation: twinkle var(--duration) infinite ease-in-out alternate;
+            opacity: var(--opacity);
+        }
+        @keyframes twinkle {
+            0% { opacity: var(--opacity); transform: scale(1); }
+            100% { opacity: 0.3; transform: scale(0.7); }
+        }
 
         /* Logo 区域 */
         .logo-box {
             width: 100%; height: 60px;
             display: flex; justify-content: center; align-items: center;
             margin-bottom: 20px;
-            z-index: 20; /* 保证在楼上面 */
+            z-index: 20; /* 保证在楼和星星上面 */
         }
         .logo-img {
             height: 100%; width: auto; max-width: 140px;
@@ -81,13 +97,12 @@
             50% { transform: scale(1.05); box-shadow: 0 0 45px rgba(255, 235, 59, 0.8); }
         }
 
-        /* 城市剪影插画 (超高版) */
+        /* 城市剪影插画 (突破天际版) */
         .skyline-svg {
             position: absolute; bottom: 0; left: 0; width: 100%; 
-            /* 强制高度为屏幕的一半，保证能看见 */
-            height: 50vh; 
+            /* 关键修改：高度占比增加到 65vh，极具压迫感 */
+            height: 65vh; 
             pointer-events: none; z-index: 1;
-            /* 保持比例填满底部，哪怕裁剪两边也要保证高度 */
             preserveAspectRatio: none; 
         }
 
@@ -180,6 +195,8 @@
 
 <div id="game-container">
     <div id="start-screen">
+        <div class="stars-container"></div>
+
         <div class="logo-box">
             <img src="logo.png" alt="请放置logo.png文件" class="logo-img">
         </div>
@@ -191,34 +208,35 @@
         
         <button class="start-btn" id="btn-start-game">立即查看</button>
 
-        <svg class="skyline-svg" viewBox="0 0 500 300" preserveAspectRatio="none">
-            <path fill="#263238" d="M0,300 L0,100 L40,100 L40,140 L80,140 L80,60 L120,60 L120,300 Z" />
-            <path fill="#263238" d="M350,300 L350,80 L400,80 L400,130 L450,130 L450,50 L500,50 L500,300 Z" />
-            <path fill="#263238" d="M200,300 L200,120 L240,120 L240,160 L280,160 L280,300 Z" />
+        <svg class="skyline-svg" viewBox="0 0 500 400" preserveAspectRatio="none">
+            <path fill="#263238" d="M0,400 L0,50 L40,50 L40,100 L80,100 L80,10 L120,10 L120,400 Z" />
+            <path fill="#263238" d="M350,400 L350,30 L400,30 L400,90 L450,90 L450,20 L500,20 L500,400 Z" />
+            <path fill="#263238" d="M200,400 L200,60 L240,60 L240,120 L280,120 L280,400 Z" />
             
-            <path fill="#37474F" d="M60,300 L60,130 L100,130 L100,90 L140,90 L140,150 L170,150 L170,300 Z" />
-            <path fill="#37474F" d="M300,300 L300,150 L340,150 L340,100 L380,100 L380,300 Z" />
+            <path fill="#37474F" d="M60,400 L60,150 L100,150 L100,80 L140,80 L140,180 L170,180 L170,400 Z" />
+            <path fill="#37474F" d="M300,400 L300,160 L340,160 L340,100 L380,100 L380,400 Z" />
             
-            <path fill="#546E7A" d="M0,300 L0,220 L40,220 L40,190 L80,190 L80,300 Z" />
-            <path fill="#546E7A" d="M150,300 L150,170 L190,170 L190,140 L230,140 L230,300 Z" />
-            <path fill="#546E7A" d="M320,300 L320,180 L360,180 L360,210 L400,210 L400,300 Z" />
-            <path fill="#546E7A" d="M440,300 L440,190 L500,190 L500,300 Z" />
+            <path fill="#546E7A" d="M0,400 L0,250 L40,250 L40,200 L80,200 L80,400 Z" />
+            <path fill="#546E7A" d="M150,400 L150,190 L190,190 L190,150 L230,150 L230,400 Z" />
+            <path fill="#546E7A" d="M320,400 L320,220 L360,220 L360,260 L400,260 L400,400 Z" />
+            <path fill="#546E7A" d="M440,400 L440,230 L500,230 L500,400 Z" />
 
             <g fill="#FDD835" opacity="0.8">
-                <rect x="85" y="70" width="5" height="8"/><rect x="100" y="70" width="5" height="8"/>
-                <rect x="460" y="60" width="5" height="8"/><rect x="480" y="60" width="5" height="8"/>
-                <rect x="105" y="100" width="5" height="8"/><rect x="120" y="100" width="5" height="8"/>
-                <rect x="350" y="110" width="5" height="8"/><rect x="365" y="110" width="5" height="8"/>
+                <rect x="85" y="30" width="6" height="10"/><rect x="105" y="30" width="6" height="10"/>
+                <rect x="460" y="40" width="6" height="10"/><rect x="480" y="40" width="6" height="10"/>
+                <rect x="360" y="50" width="6" height="10"/><rect x="380" y="50" width="6" height="10"/>
 
-                <rect x="160" y="180" width="5" height="8"/><rect x="175" y="180" width="5" height="8"/>
-                <rect x="160" y="200" width="5" height="8"/><rect x="175" y="200" width="5" height="8"/>
-                <rect x="200" y="150" width="5" height="8"/><rect x="215" y="150" width="5" height="8"/>
-                <rect x="330" y="190" width="5" height="8"/><rect x="345" y="190" width="5" height="8"/>
+                <rect x="105" y="110" width="5" height="8"/><rect x="125" y="110" width="5" height="8"/>
+                <rect x="210" y="80" width="5" height="8"/><rect x="225" y="80" width="5" height="8"/>
+                <rect x="350" y="120" width="5" height="8"/><rect x="365" y="120" width="5" height="8"/>
 
-                <rect x="10" y="230" width="5" height="8"/><rect x="25" y="230" width="5" height="8"/>
-                <rect x="55" y="200" width="5" height="8"/><rect x="70" y="200" width="5" height="8"/>
-                <rect x="450" y="210" width="5" height="8"/><rect x="470" y="210" width="5" height="8"/>
-                <rect x="450" y="230" width="5" height="8"/><rect x="470" y="230" width="5" height="8"/>
+                <rect x="160" y="210" width="5" height="8"/><rect x="175" y="210" width="5" height="8"/>
+                <rect x="200" y="170" width="5" height="8"/><rect x="215" y="170" width="5" height="8"/>
+                <rect x="330" y="240" width="5" height="8"/><rect x="345" y="240" width="5" height="8"/>
+
+                <rect x="15" y="270" width="5" height="8"/><rect x="30" y="270" width="5" height="8"/>
+                <rect x="55" y="230" width="5" height="8"/><rect x="70" y="230" width="5" height="8"/>
+                <rect x="450" y="260" width="5" height="8"/><rect x="470" y="260" width="5" height="8"/>
             </g>
         </svg>
     </div>
@@ -257,6 +275,35 @@
 </div>
 
 <script>
+    // --- 新增：动态生成星空 ---
+    function createStars() {
+        const starsContainer = document.querySelector('.stars-container');
+        const numStars = 100; // 星星数量
+
+        for (let i = 0; i < numStars; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            
+            // 随机大小
+            const size = Math.random() * 2 + 1;
+            star.style.width = `${size}px`;
+            star.style.height = `${size}px`;
+            
+            // 随机位置 (只分布在上方80%区域)
+            star.style.top = `${Math.random() * 80}%`;
+            star.style.left = `${Math.random() * 100}%`;
+            
+            // 随机动画参数
+            star.style.setProperty('--duration', `${Math.random() * 3 + 2}s`);
+            star.style.setProperty('--opacity', `${Math.random() * 0.7 + 0.3}`);
+            
+            starsContainer.appendChild(star);
+        }
+    }
+    // 页面加载完成后生成星星
+    window.addEventListener('load', createStars);
+
+
     // --- 数据源 ---
     const gdpData = {
         "上海": {2025:56709,2024:53927,2023:51405,2022:48595,2021:47059,2020:41604,2019:40241,2018:37769,2017:34378,2016:30964,2015:27822,2014:25965,2013:23809,2012:21775,2011:20406,2010:18320,2009:16181,2008:14877,2007:13180,2006:10825},
