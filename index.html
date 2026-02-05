@@ -28,7 +28,7 @@
             box-shadow: 0 0 50px rgba(0,0,0,0.8);
         }
 
-        /* --- 2. 首页 (精致赛道版) --- */
+        /* --- 2. 首页 --- */
         #start-screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle at 50% 20%, #1a1f35 0%, #000000 100%);
@@ -650,9 +650,12 @@
             newCars.sort((a,b) => a.originalIndex - b.originalIndex);
             newCars.forEach((car, i) => car.update(i, newCarsStartY));
             
-            // V76 修改：固定终点线位置 (大约在第6排的位置)
-            // 这样前面的车还没到线，后面的车会物理超过线
-            currentFinishLineY = topMargin + rowGap * 5.5;
+            // 修正终点线位置：在车下方更远一点，保证不压字
+            if (currentYear === 2006) {
+                currentFinishLineY = topMargin + rowGap + 40; 
+            } else if(oldCars.length > 0) {
+                currentFinishLineY = newCarsStartY + rowGap * 0.9;
+            }
             
             renderList = [...oldCars, ...newCars];
         }
