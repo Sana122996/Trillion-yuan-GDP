@@ -31,7 +31,6 @@
         /* --- 2. 首页 (精致赛道版) --- */
         #start-screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            /* 深邃夜空背景 */
             background: radial-gradient(circle at 50% 20%, #1a1f35 0%, #000000 100%);
             z-index: 10000;
             display: flex; flex-direction: column; 
@@ -42,7 +41,6 @@
         }
         #start-screen.hidden { transform: translateY(-100%); }
 
-        /* 顶部星光装饰 */
         #start-screen::before {
             content: ''; position: absolute; top: 0; width: 100%; height: 30%;
             background-image: 
@@ -59,7 +57,6 @@
         }
         .logo-img { height: 100%; width: auto; max-width: 120px; object-fit: contain; }
 
-        /* 飘动的赛车旗 */
         .racing-flags {
             width: 140px; height: 100px;
             margin-bottom: 10px; z-index: 20;
@@ -76,7 +73,6 @@
         .main-title { 
             font-weight: 900; font-size: 44px; line-height: 1.2;
             color: #FFEB3B; letter-spacing: 1px; margin: 0;
-            /* 更有质感的文字投影 */
             text-shadow: 0 2px 0 #bfa826, 0 5px 10px rgba(0,0,0,0.5);
             font-style: italic; transform: skewX(-5deg);
         }
@@ -89,7 +85,6 @@
             border-bottom: 3px solid #FFEB3B;
         }
 
-        /* 按钮 */
         .start-btn {
             font-weight: 900; font-size: 22px; color: #000; 
             background: linear-gradient(135deg, #FFEB3B 0%, #FBC02D 100%);
@@ -107,7 +102,6 @@
             100% { transform: skewX(-10deg) scale(1.05); filter: brightness(1.1); box-shadow: 0 10px 40px rgba(255, 235, 59, 0.6); }
         }
 
-        /* 首页赛道 SVG (精致版) */
         .home-track-svg {
             position: absolute; bottom: 0; left: 0; width: 100%; height: 60vh;
             pointer-events: none; z-index: 1; preserveAspectRatio: none;
@@ -246,20 +240,14 @@
                     <stop offset="100%" stop-color="#2c2c2c"/>
                 </linearGradient>
             </defs>
-            
             <rect x="0" y="0" width="500" height="150" fill="#0b0e14"/>
             <path d="M0,150 Q250,100 500,150" fill="#1a237e" opacity="0.3"/>
-
             <path d="M180,150 L320,150 L550,400 L-50,400 Z" fill="url(#roadGrad)"/>
-            
             <path d="M180,150 L320,150 L550,400 L-50,400 Z" fill="#000" opacity="0.3" filter="url(#noise)"/>
-
             <path d="M180,150 L-50,400" stroke="#F44336" stroke-width="15" stroke-dasharray="30,30"/>
             <path d="M180,150 L-50,400" stroke="#fff" stroke-width="15" stroke-dasharray="0,30,30,0" stroke-dashoffset="30"/>
-            
             <path d="M320,150 L550,400" stroke="#F44336" stroke-width="15" stroke-dasharray="30,30"/>
             <path d="M320,150 L550,400" stroke="#fff" stroke-width="15" stroke-dasharray="0,30,30,0" stroke-dashoffset="30"/>
-
             <path d="M250,150 L250,400" stroke="rgba(255,255,255,0.5)" stroke-width="2" stroke-dasharray="20,40"/>
         </svg>
     </div>
@@ -298,7 +286,6 @@
 </div>
 
 <script>
-    // --- 数据源 ---
     const gdpData = {
         "上海": {2025:56709,2024:53927,2023:51405,2022:48595,2021:47059,2020:41604,2019:40241,2018:37769,2017:34378,2016:30964,2015:27822,2014:25965,2013:23809,2012:21775,2011:20406,2010:18320,2009:16181,2008:14877,2007:13180,2006:10825},
         "北京": {2025:52073,2024:49843,2023:47354,2022:45222,2021:44351,2020:38504,2019:37767,2018:35161,2017:31326,2016:28439,2015:26034,2014:23578,2013:21746,2012:19568,2011:17653,2010:15420,2009:13336,2008:12168,2007:10730,2006:8619},
@@ -556,7 +543,7 @@
             if(isFinished && this.name === '上海') {
                 ctx.save();
                 
-                const text = "点击车辆看历史数据"; // 文案更新
+                const text = "点击车辆看历史数据";
                 ctx.font = "bold 14px sans-serif";
                 const padding = 12;
                 const textMetrics = ctx.measureText(text);
@@ -568,18 +555,11 @@
                 let centerX = x + this.width / 2;
                 
                 // --- 核心修复：全向防裁切逻辑 ---
-                // 1. 气泡最左边不能小于 10
                 let boxLeft = centerX - boxWidth / 2;
                 if (boxLeft < 10) {
                     centerX = 10 + boxWidth / 2;
                 }
-                // 2. 气泡最右边不能大于 w - 10
-                // 这里的 w 是画布的逻辑宽度 (game-container width)
-                // 由于我们在 ctx.scale 之前，需要谨慎。
-                // 但这里是在 cameraScale 坐标系下绘制的，边界也应该是 (w / cameraScale)
-                // 简单起见，我们假设 w 是相对固定的，用相对偏移量来限制
-                // 更好的做法是限制它相对于 x 的偏移不要太离谱，或者简单地限制右边界
-                // 这里我们做个简单的右边界检查
+                // 简单的右边界检查
                 const rightBound = w / cameraScale - 10;
                 if (centerX + boxWidth / 2 > rightBound) {
                     centerX = rightBound - boxWidth / 2;
@@ -647,7 +627,6 @@
         const rowGap = carHeight * 1.5;
         const groupGap = rowGap * 1.2;
         // 核心修复：大幅增加底部留白，防止被手机UI遮挡
-        // 这样在计算缩放时，会强制把画面拉高，留出下面一大块空地
         const bottomPadding = h * 0.5; 
 
         // 如果比赛结束，我们将所有车合并到一个列表，统一计算位置
@@ -671,12 +650,9 @@
             newCars.sort((a,b) => a.originalIndex - b.originalIndex);
             newCars.forEach((car, i) => car.update(i, newCarsStartY));
             
-            // 修正终点线位置：在车下方更远一点
-            if (currentYear === 2006) {
-                currentFinishLineY = topMargin + rowGap + 40; 
-            } else if(oldCars.length > 0) {
-                currentFinishLineY = newCarsStartY + rowGap * 0.8;
-            }
+            // V76 修改：固定终点线位置 (大约在第6排的位置)
+            // 这样前面的车还没到线，后面的车会物理超过线
+            currentFinishLineY = topMargin + rowGap * 5.5;
             
             renderList = [...oldCars, ...newCars];
         }
