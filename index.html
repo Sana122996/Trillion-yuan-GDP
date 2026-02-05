@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>中国万亿GDP城市大奖赛</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Fira+Code:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Fira+Code:wght@700&family=ZCOOL+QingKe+HuangYou&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     
     <style>
-        /* --- 1. 基础重置 --- */
+        /* --- 1. 基础环境 --- */
         body { 
             margin: 0; overflow: hidden; 
             background: #050505; 
@@ -19,7 +19,6 @@
             display: flex; justify-content: center;
         }
 
-        /* --- 2. 游戏容器 --- */
         #game-container {
             position: relative;
             width: 100%; max-width: 500px;
@@ -29,13 +28,11 @@
             box-shadow: 0 0 50px rgba(0,0,0,0.5);
         }
 
-        /* --- 3. 首页 (赛车风格化重构) --- */
+        /* --- 2. 首页 (纯赛道风格) --- */
         #start-screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            /* 背景：赛道远景+聚光灯氛围 */
-            background: 
-                radial-gradient(circle at center 30%, #1a237e 0%, #000000 70%),
-                linear-gradient(to bottom, transparent 60%, #111 60%, #333 100%);
+            /* 背景改为深空灰黑，模拟夜间赛道 */
+            background: linear-gradient(180deg, #111 0%, #222 100%);
             z-index: 10000;
             display: flex; flex-direction: column; 
             align-items: center; 
@@ -45,98 +42,78 @@
         }
         #start-screen.hidden { transform: translateY(-100%); }
 
-        /* 赛道和起跑线装饰 */
-        #start-screen::before, #start-screen::after {
-            content: ''; position: absolute; width: 100%; pointer-events: none;
-        }
-        /* 透视车道线 */
+        /* 顶部装饰光 */
         #start-screen::before {
-            bottom: 0; height: 40%;
-            background: 
-                linear-gradient(to bottom, transparent, rgba(255,255,255,0.8)),
-                repeating-linear-gradient(90deg, transparent 0, transparent 48%, #fff 48%, #fff 52%, transparent 52%);
-            transform: perspective(500px) rotateX(60deg) scale(2);
-            transform-origin: bottom center;
-            opacity: 0.3;
-        }
-        /* 底部黑白棋盘格起跑线 */
-        #start-screen::after {
-            bottom: 0; height: 30px;
-            background-image: 
-                linear-gradient(45deg, #000 25%, transparent 25%), 
-                linear-gradient(-45deg, #000 25%, transparent 25%), 
-                linear-gradient(45deg, transparent 75%, #000 75%), 
-                linear-gradient(-45deg, transparent 75%, #000 75%);
-            background-size: 30px 30px;
-            background-position: 0 0, 0 15px, 15px -15px, -15px 0px;
-            background-color: #fff;
-            border-top: 3px solid #FFEB3B;
-            z-index: 2;
+            content: ''; position: absolute; top: 0; width: 100%; height: 30%;
+            background: radial-gradient(ellipse at top, rgba(255,255,255,0.1) 0%, transparent 70%);
+            pointer-events: none; z-index: 2;
         }
 
-        /* Logo 区域 */
+        /* 首页赛道 SVG (替换掉楼宇) */
+        .home-track-svg {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 60vh;
+            pointer-events: none; z-index: 1;
+            preserveAspectRatio: none;
+        }
+
         .logo-box {
-            width: 100%; height: 70px;
+            width: 100%; height: 60px;
             display: flex; justify-content: center; align-items: center;
-            margin-bottom: 25px;
-            z-index: 20;
+            margin-bottom: 30px; z-index: 20;
         }
-        .logo-img {
-            height: 100%; width: auto; max-width: 160px;
-            object-fit: contain; filter: drop-shadow(0 0 5px rgba(255,255,255,0.3));
+        .logo-img { height: 100%; width: auto; max-width: 120px; object-fit: contain; }
+
+        .racing-flags {
+            width: 140px; height: 100px;
+            margin-bottom: 10px; z-index: 20;
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.6));
+            animation: floatFlags 3s infinite ease-in-out;
+        }
+        @keyframes floatFlags {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(2deg); }
         }
 
-        /* 标题文字 (增加速度感) */
         .title-box { text-align: center; color: #fff; margin-bottom: 50px; z-index: 20; }
+        
         .main-title { 
-            font-family: 'Fira Code', monospace; /* 使用更硬朗的字体 */
-            font-weight: 900; font-size: 32px; line-height: 1.3;
-            color: #FFEB3B; letter-spacing: 1px; margin: 0;
-            text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 0 0 20px rgba(255, 235, 59, 0.8);
-            font-style: italic; /* 斜体增加动势 */
+            font-family: "YouSheBiaoTiHei", "ZCOOL QingKe HuangYou", "PingFang SC", sans-serif;
+            font-weight: 400; font-size: 48px; line-height: 1.2;
+            color: #FFEB3B; letter-spacing: 2px; margin: 0;
+            text-shadow: 4px 4px 0 #000, 0 0 30px rgba(255, 235, 59, 0.4);
             transform: skewX(-5deg);
         }
+        
         .sub-title { 
             font-weight: 700; font-size: 16px; color: #fff;
-            margin-top: 12px; letter-spacing: 6px; text-transform: uppercase;
-            background: linear-gradient(90deg, transparent, #000, transparent);
-            padding: 5px 20px; display: inline-block;
+            margin-top: 15px; letter-spacing: 4px; text-transform: uppercase;
+            background: #000; padding: 6px 14px; display: inline-block; transform: skewX(-5deg);
+            border-left: 4px solid #FFEB3B; border-right: 4px solid #FFEB3B;
         }
 
-        /* 按钮 (赛车风格改造) */
         .start-btn {
-            font-family: 'Fira Code', monospace;
-            font-weight: 900; font-size: 22px; color: #000; 
+            font-family: "YouSheBiaoTiHei", "ZCOOL QingKe HuangYou", sans-serif; 
+            font-size: 24px; color: #000; 
             background: linear-gradient(to bottom, #FFEB3B, #FBC02D);
-            border: none; padding: 18px 60px; 
-            /* 硬朗的切角造型 */
-            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%);
+            border: 4px solid #000; padding: 16px 64px; 
+            transform: skewX(-10deg);
             cursor: pointer; z-index: 30; outline: none;
-            /* 棋盘格边框效果 */
-            box-shadow: 
-                inset 0 0 0 4px #000,
-                0 0 30px rgba(255, 235, 59, 0.6);
+            box-shadow: 5px 5px 0 #333;
             animation: engineStart 1.5s infinite ease-in-out alternate;
-            position: relative;
-            text-transform: uppercase;
+            position: relative; letter-spacing: 2px;
         }
-        /* 按钮上的棋盘格纹理 */
-        .start-btn::before {
-            content: ''; position: absolute; top: 4px; left: 4px; right: 4px; bottom: 4px;
-            background-image: repeating-linear-gradient(45deg, rgba(0,0,0,0.1) 25%, transparent 25%, transparent 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1) 75%, transparent 75%, transparent 100%);
-            background-size: 10px 10px;
-            z-index: -1;
-            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%);
-        }
+        /* 修正文字斜切 */
+        .start-btn span { display: block; transform: skewX(10deg); }
 
         @keyframes engineStart {
-            0% { transform: scale(1); box-shadow: inset 0 0 0 4px #000, 0 0 30px rgba(255, 235, 59, 0.6); }
-            100% { transform: scale(1.05); box-shadow: inset 0 0 0 4px #000, 0 0 50px rgba(255, 235, 59, 0.9), 0 0 10px #fff; }
+            0% { transform: skewX(-10deg) scale(1); filter: brightness(1); }
+            100% { transform: skewX(-10deg) scale(1.05); filter: brightness(1.1); box-shadow: 5px 5px 0 #333, 0 0 20px rgba(255,235,59,0.5); }
         }
 
-
-        /* --- 4. 游戏画布 --- */
+        /* --- 4. 游戏内容 --- */
         canvas { display: block; width: 100%; height: 100%; }
+        #hitbox-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; }
+        .car-hitbox { position: absolute; background: transparent; cursor: pointer; pointer-events: auto; z-index: 51; }
 
         /* --- 5. UI 层 --- */
         #ui-layer {
@@ -159,8 +136,7 @@
             padding: 8px 20px; border-radius: 40px; 
             border: 2px solid rgba(255,255,255,0.6); 
             font-size: 15px; font-weight: bold;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-            white-space: nowrap;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3); white-space: nowrap;
         }
         #count-num { color: #FFEB3B; font-family: 'Press Start 2P'; margin: 0 8px; font-size: 16px; }
 
@@ -183,10 +159,7 @@
         #btn-share { background: #FFEB3B; color: #333; border-color: #fff; }
         .btn-replay { background: #D32F2F !important; }
 
-        /* --- 6. 幽灵层 & 弹窗 --- */
-        #hitbox-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; }
-        .car-hitbox { position: absolute; background: transparent; cursor: pointer; pointer-events: auto; z-index: 51; }
-        
+        /* --- 6. 弹窗 --- */
         #modal-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85); z-index: 2000;
@@ -228,12 +201,52 @@
             <img src="logo.png" alt="Logo" class="logo-img">
         </div>
         
+        <svg class="racing-flags" viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+            <g transform="translate(20,10) rotate(-15)">
+                <rect x="0" y="0" width="8" height="100" fill="#888"/>
+                <path d="M8,0 L90,0 L90,50 L8,50 Z" fill="#fff"/>
+                <g fill="#000">
+                    <rect x="8" y="0" width="20" height="12.5"/> <rect x="48" y="0" width="20" height="12.5"/>
+                    <rect x="28" y="12.5" width="20" height="12.5"/> <rect x="68" y="12.5" width="20" height="12.5"/>
+                    <rect x="8" y="25" width="20" height="12.5"/> <rect x="48" y="25" width="20" height="12.5"/>
+                    <rect x="28" y="37.5" width="20" height="12.5"/> <rect x="68" y="37.5" width="20" height="12.5"/>
+                </g>
+            </g>
+            <g transform="translate(180,10) scale(-1, 1) rotate(-15)">
+                <rect x="0" y="0" width="8" height="100" fill="#888"/>
+                <path d="M8,0 L90,0 L90,50 L8,50 Z" fill="#fff"/>
+                <g fill="#000">
+                    <rect x="8" y="0" width="20" height="12.5"/> <rect x="48" y="0" width="20" height="12.5"/>
+                    <rect x="28" y="12.5" width="20" height="12.5"/> <rect x="68" y="12.5" width="20" height="12.5"/>
+                    <rect x="8" y="25" width="20" height="12.5"/> <rect x="48" y="25" width="20" height="12.5"/>
+                    <rect x="28" y="37.5" width="20" height="12.5"/> <rect x="68" y="37.5" width="20" height="12.5"/>
+                </g>
+            </g>
+        </svg>
+
         <div class="title-box">
-            <h1 class="main-title">中国“万亿GDP”<br>城市大奖赛</h1>
-            <h2 class="sub-title">SEASON 2006-2025</h2>
+            <h1 class="main-title">全国“万亿GDP”<br>城市大奖赛</h1>
+            <h2 class="sub-title">2006-2025年</h2>
         </div>
         
-        <button class="start-btn" id="btn-start-game">开始竞赛</button>
+        <button class="start-btn" id="btn-start-game">
+            <span>开始竞赛</span>
+        </button>
+
+        <svg class="home-track-svg" viewBox="0 0 500 400" preserveAspectRatio="none">
+            <defs>
+                <linearGradient id="trackGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+                    <stop offset="0%" style="stop-color:#333;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#111;stop-opacity:1" />
+                </linearGradient>
+            </defs>
+            <path d="M-100,400 L600,400 L300,100 L200,100 Z" fill="url(#trackGrad)"/>
+            <path d="M-100,400 L200,100" stroke="#F44336" stroke-width="15" stroke-dasharray="40,40"/>
+            <path d="M-100,400 L200,100" stroke="#fff" stroke-width="15" stroke-dasharray="0,40,40,0" stroke-dashoffset="40"/>
+            <path d="M600,400 L300,100" stroke="#F44336" stroke-width="15" stroke-dasharray="40,40"/>
+            <path d="M600,400 L300,100" stroke="#fff" stroke-width="15" stroke-dasharray="0,40,40,0" stroke-dashoffset="40"/>
+            <path d="M250,400 L250,100" stroke="rgba(255,255,255,0.3)" stroke-width="4" stroke-dasharray="30,50"/>
+        </svg>
     </div>
 
     <canvas id="gameCanvas"></canvas>
@@ -243,7 +256,7 @@
         <div class="top-bar">
             <div id="year-display">2006</div>
             <div id="info-pill">
-                <span>万亿GDP城市</span><span id="count-num">1</span><span>个</span>
+                <span>万亿GDP城市</span><span id="count-num">0</span><span>个</span>
             </div>
             <div id="btn-skip">跳过 >></div>
         </div>
@@ -349,6 +362,9 @@
     let isPaused = true;
     let isFinished = false;
     let isGameStarted = false;
+    
+    let displayedCount = 0;
+    let currentFinishLineY = 0; 
 
     // 布局参数
     const LANE_COUNT = 6;
@@ -361,7 +377,6 @@
         dpr = window.devicePixelRatio || 1;
         w = gameContainer.clientWidth;
         h = gameContainer.clientHeight;
-        
         canvas.width = w * dpr;
         canvas.height = h * dpr;
         
@@ -391,6 +406,59 @@
         return this;
     }
 
+    // --- 绘制黑白赛车格纹终点线 (优化版) ---
+    function drawFinishLine(ctx, y, width) {
+        const checkSize = 16;
+        const rows = 2;
+        ctx.save();
+        ctx.translate(w/2 - width/2, y);
+
+        // 绘制黑白格背景条
+        for(let r=0; r<rows; r++) {
+            for(let c=0; c<width/checkSize; c++) {
+                ctx.fillStyle = (r+c)%2 === 0 ? '#fff' : '#000';
+                ctx.fillRect(c*checkSize, r*checkSize, checkSize, checkSize);
+            }
+        }
+
+        // 绘制金色标牌
+        const text = "10000亿元GDP";
+        ctx.font = `bold ${fontSize}px sans-serif`;
+        const metrics = ctx.measureText(text);
+        const paddingW = 30;
+        const paddingH = 16;
+        const bgW = metrics.width + paddingW;
+        const bgH = rows * checkSize + paddingH;
+
+        ctx.translate(width/2, rows*checkSize/2);
+
+        // 标牌阴影
+        ctx.shadowColor = "rgba(0,0,0,0.6)"; ctx.shadowBlur = 10; ctx.shadowOffsetY = 5;
+        
+        let gradient = ctx.createLinearGradient(0, -bgH/2, 0, bgH/2);
+        gradient.addColorStop(0, '#FFF176');
+        gradient.addColorStop(1, '#FBC02D');
+        ctx.fillStyle = gradient;
+        
+        ctx.beginPath();
+        ctx.roundRect(-bgW/2, -bgH/2, bgW, bgH, 8);
+        ctx.fill();
+        ctx.shadowColor = "transparent";
+
+        // 黑白格边框
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "#000";
+        ctx.stroke();
+
+        // 文字
+        ctx.fillStyle = "#000";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(text, 0, 0);
+
+        ctx.restore();
+    }
+
     class Car {
         constructor(name, foundYear, index) {
             this.name = name;
@@ -402,6 +470,7 @@
             this.targetX = 0; this.targetY = 0;
             this.driftPhase = Math.random() * Math.PI * 2;
             this.hasSpawned = false;
+            this.isCounted = false; 
 
             this.hitbox = document.createElement('div');
             this.hitbox.className = 'car-hitbox';
@@ -437,9 +506,25 @@
                 this.hasSpawned = true;
             }
 
-            this.x += (this.targetX - this.x) * 0.1;
-            this.y += (this.targetY - this.y) * 0.08;
-            this.currentDrift = Math.sin(Date.now()/250 + this.driftPhase) * 2;
+            // 核心逻辑：只有当车头（y）冲过终点线（currentFinishLineY）才计数
+            // 注意：坐标系y向下增大，所以冲过意味着 y < lineY
+            // 为了防止终点线太高导致车没过线就停了，我们把判定线稍微放宽一点
+            if (!this.isCounted && this.y < currentFinishLineY + 50) {
+                this.isCounted = true;
+                displayedCount++;
+                uiCount.innerText = displayedCount;
+            }
+
+            // 结束后停止晃动
+            if (isFinished) {
+                this.x += (this.targetX - this.x) * 0.1;
+                this.y += (this.targetY - this.y) * 0.1;
+                this.currentDrift = 0; 
+            } else {
+                this.x += (this.targetX - this.x) * 0.1;
+                this.y += (this.targetY - this.y) * 0.08;
+                this.currentDrift = Math.sin(Date.now()/250 + this.driftPhase) * 2;
+            }
 
             const centerX = w / 2;
             const finalX = (this.x + this.currentDrift - centerX) * cameraScale + centerX;
@@ -454,9 +539,54 @@
             const x = this.x + this.currentDrift;
             const y = this.y;
             
-            if(isFinished) {
-                ctx.strokeStyle = "#FFFF00"; ctx.lineWidth = 4;
-                ctx.strokeRect(x-2, y-2, this.width+4, this.height+4);
+            // 结束时，给第一辆车（上海）头顶画个气泡提示
+            if(isFinished && this.name === '上海') {
+                ctx.save();
+                
+                const text = "点击查看历史数据";
+                ctx.font = "bold 14px sans-serif";
+                const padding = 12;
+                const textMetrics = ctx.measureText(text);
+                const boxWidth = textMetrics.width + padding * 2;
+                const boxHeight = 34;
+                const arrowHeight = 8;
+                
+                // 原始中心X
+                let centerX = x + this.width / 2;
+                // 边界检测：防止气泡左侧超出屏幕
+                // 屏幕左边界在 transform 坐标系下大概是 (0 - centerX)/cameraScale + centerX ? 
+                // 简单点：直接限制 centerX 最小值，确保 boxWidth/2 不会画到负数区域
+                // 实际上 Canvas 的 0 是左边缘。
+                // 气泡左边缘 = centerX - boxWidth/2
+                if (centerX - boxWidth/2 < 10) {
+                    centerX = 10 + boxWidth/2;
+                }
+
+                const bottomY = y - 10 + Math.sin(Date.now()/200)*5; // 浮动
+                const boxTopY = bottomY - boxHeight - arrowHeight;
+
+                // 阴影
+                ctx.shadowColor="rgba(0,0,0,0.4)"; ctx.shadowBlur=10; ctx.shadowOffsetY=4;
+
+                ctx.fillStyle = '#FFEB3B';
+                ctx.beginPath();
+                ctx.roundRect(centerX - boxWidth/2, boxTopY, boxWidth, boxHeight, 8);
+                
+                // 箭头指向车子中心 (需要指回 this.width/2，所以要重新计算箭头位置)
+                // 如果气泡偏移了，箭头也得偏一点，但最好还是指着车
+                const carCenterX = x + this.width / 2;
+                ctx.moveTo(carCenterX - 6, boxTopY + boxHeight);
+                ctx.lineTo(carCenterX, boxTopY + boxHeight + arrowHeight);
+                ctx.lineTo(carCenterX + 6, boxTopY + boxHeight);
+                ctx.fill();
+
+                ctx.shadowColor="transparent";
+                ctx.fillStyle = "#000";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText(text, centerX, boxTopY + boxHeight/2);
+                
+                ctx.restore();
             }
 
             ctx.fillStyle = "rgba(0,0,0,0.4)";
@@ -493,27 +623,41 @@
         const groupGap = rowGap * 1.2;
         const bottomPadding = h * 0.25;
 
-        const oldCars = cars.filter(c => c.foundYear < currentYear);
-        const newCars = cars.filter(c => c.foundYear === currentYear);
-        const oldRows = Math.ceil(Math.max(oldCars.length, 0) / LANE_COUNT);
-        const newRows = Math.ceil(Math.max(newCars.length, 0) / LANE_COUNT);
-        
-        let newCarsStartY = topMargin;
-        if(oldCars.length > 0) {
-            newCarsStartY = topMargin + oldRows * rowGap + groupGap;
-            separators = [{ y: topMargin + oldRows * rowGap + groupGap/2 - 20, year: currentYear }];
+        // 如果比赛结束，我们将所有车合并到一个列表，统一计算位置
+        let renderList = [];
+        if (isFinished) {
+            renderList = [...cars].sort((a,b) => a.foundYear - b.foundYear || a.originalIndex - b.originalIndex);
+            renderList.forEach((car, i) => {
+                car.update(i, topMargin);
+            });
         } else {
-            separators = [];
+            const oldCars = cars.filter(c => c.foundYear < currentYear);
+            const newCars = cars.filter(c => c.foundYear === currentYear);
+            
+            oldCars.sort((a,b) => a.foundYear - b.foundYear || a.originalIndex - b.originalIndex);
+            oldCars.forEach((car, i) => car.update(i, topMargin));
+            
+            const oldRows = Math.ceil(Math.max(oldCars.length, 0) / LANE_COUNT);
+            let newCarsStartY = topMargin;
+            if (oldCars.length > 0) newCarsStartY = topMargin + oldRows * rowGap + groupGap;
+            
+            newCars.sort((a,b) => a.originalIndex - b.originalIndex);
+            newCars.forEach((car, i) => car.update(i, newCarsStartY));
+            
+            // 修正终点线位置：让它离车更远一点，确保车能完全开过去
+            if (currentYear === 2006) {
+                currentFinishLineY = topMargin + rowGap + 20; 
+            } else if(oldCars.length > 0) {
+                currentFinishLineY = newCarsStartY + rowGap * 0.8;
+            }
+            
+            renderList = [...oldCars, ...newCars];
         }
 
-        let totalH = newCarsStartY;
-        if (newCars.length > 0) {
-            totalH += (newRows - 1) * rowGap + carHeight; 
-        } else if (oldCars.length > 0) {
-            totalH = topMargin + (oldRows - 1) * rowGap + carHeight;
-        }
-        totalH += bottomPadding;
-
+        // --- 智能缩放 ---
+        const totalRows = Math.ceil(renderList.length / LANE_COUNT);
+        let totalH = topMargin + (totalRows) * rowGap + bottomPadding;
+        
         let targetScale = totalH > h ? h / totalH : 1;
         targetScale = Math.max(targetScale, 0.4); 
         cameraScale += (targetScale - cameraScale) * 0.1;
@@ -538,20 +682,13 @@
             for(let y=-80; y<drawH; y+=80) ctx.fillRect(lx-2, y+roadScroll, 4, 40);
         }
 
-        separators.forEach(sep => {
-            const y = sep.y;
-            ctx.save(); ctx.translate(w/2, y);
-            const color = yearColors[sep.year % yearColors.length];
-            ctx.beginPath(); ctx.setLineDash([10,10]); ctx.moveTo(-roadW*0.45, 0); ctx.lineTo(roadW*0.45, 0);
-            ctx.strokeStyle = color; ctx.lineWidth = 4; ctx.stroke();
-            const lw = fontSize*7, lh = fontSize*1.8;
-            ctx.fillStyle = color; 
-            ctx.beginPath(); ctx.roundRect(-lw/2, -lh/2, lw, lh, lh/2); ctx.fill();
-            ctx.fillStyle = "#fff"; ctx.font = `bold ${fontSize}px sans-serif`;
-            ctx.textAlign = "center"; ctx.textBaseline = "middle";
-            ctx.fillText(sep.year + "年新增", 0, 2);
-            ctx.restore();
-        });
+        // 1. 先绘制赛车终点线 (这样它在底部，车从上面开过)
+        if (!isFinished) {
+            drawFinishLine(ctx, currentFinishLineY, roadW);
+        }
+
+        // 2. 再绘制车 (遮住线)
+        renderList.forEach(car => car.draw(ctx));
 
         if(!isPaused && !isFinished && isGameStarted) {
             yearTimer += 16;
@@ -564,9 +701,8 @@
                     timeline[currentYear].forEach(name => {
                         cars.push(new Car(name, currentYear, cars.length));
                     });
-                    uiCount.innerText = cars.length;
                 } else {
-                    if(yearTimer > 500) {
+                    if(displayedCount >= 29 && yearTimer > 1000) {
                         isFinished = true;
                         btnToggle.innerText = "重播";
                         btnToggle.classList.add('btn-replay');
@@ -576,18 +712,6 @@
                 }
             }
         }
-
-        oldCars.sort((a,b) => a.foundYear - b.foundYear || a.originalIndex - b.originalIndex);
-        oldCars.forEach((car, i) => { 
-            car.update(i, topMargin); 
-            car.draw(ctx); 
-        });
-
-        newCars.sort((a,b) => a.originalIndex - b.originalIndex);
-        newCars.forEach((car, i) => { 
-            car.update(i, newCarsStartY); 
-            car.draw(ctx); 
-        });
 
         requestAnimationFrame(gameLoop);
     }
@@ -635,7 +759,7 @@
 
     document.getElementById('modal-close').onclick = () => { modalOverlay.style.display = "none"; };
 
-    // --- 跳过逻辑 ---
+    // --- 跳过逻辑 (瞬间归位) ---
     btnSkip.onclick = () => {
         cars.forEach(c => hitboxLayer.removeChild(c.hitbox));
         cars = [];
@@ -643,15 +767,18 @@
         
         activeYears.forEach(year => {
             timeline[year].forEach(name => {
-                cars.push(new Car(name, year, cars.length));
+                const car = new Car(name, year, cars.length);
+                car.isCounted = true; 
+                cars.push(car);
             });
         });
 
         currentYearIndex = activeYears.length - 1;
         currentYear = activeYears[currentYearIndex];
         
+        displayedCount = cars.length; 
         uiYear.innerText = currentYear;
-        uiCount.innerText = cars.length;
+        uiCount.innerText = displayedCount;
         
         isFinished = true;
         btnToggle.innerText = "重播";
@@ -667,6 +794,7 @@
             isPaused = false;
             isGameStarted = true;
             uiLayer.classList.add('show');
+            timeline[currentYear].forEach(name => cars.push(new Car(name, currentYear, cars.length)));
         }, 500); 
     };
 
@@ -676,7 +804,8 @@
             cars = [];
             currentYearIndex = 0; currentYear = activeYears[0];
             yearTimer = 0; isFinished = false; isPaused = false;
-            uiYear.innerText = currentYear; uiCount.innerText = 1;
+            displayedCount = 0; 
+            uiYear.innerText = currentYear; uiCount.innerText = 0;
             btnToggle.innerText = "暂停"; btnToggle.classList.remove('btn-replay');
             btnSkip.style.display = 'block';
             timeline[currentYear].forEach(name => cars.push(new Car(name, currentYear, cars.length)));
@@ -697,7 +826,6 @@
         navigator.clipboard.writeText(url).then(() => showToast("链接已复制"));
     };
 
-    timeline[currentYear].forEach(name => cars.push(new Car(name, currentYear, cars.length)));
     gameLoop();
 
 </script>
