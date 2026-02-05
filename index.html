@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>全国“万亿GDP”城市大奖赛</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Fira+Code:wght@700&family=ZCOOL+QingKe+HuangYou&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     
     <style>
@@ -13,7 +13,8 @@
         body { 
             margin: 0; overflow: hidden; 
             background: #050505; 
-            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+            /* 强制使用系统最粗黑体，拒绝黄油体 */
+            font-family: "PingFang SC", "Microsoft YaHei", "Heiti SC", sans-serif;
             touch-action: none; user-select: none;
             -webkit-tap-highlight-color: transparent;
             display: flex; justify-content: center;
@@ -28,10 +29,10 @@
             box-shadow: 0 0 50px rgba(0,0,0,0.8);
         }
 
-        /* --- 2. 首页 (高清 CSS 3D 赛道) --- */
+        /* --- 2. 首页 (精致赛道版) --- */
         #start-screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000;
+            background: radial-gradient(circle at 50% 20%, #1a1f35 0%, #000000 100%);
             z-index: 10000;
             display: flex; flex-direction: column; 
             align-items: center; 
@@ -41,42 +42,11 @@
         }
         #start-screen.hidden { transform: translateY(-100%); }
 
-        /* 赛道容器 */
-        .road-container {
-            position: absolute; bottom: 0; left: 0; width: 100%; height: 55%;
-            perspective: 600px; /* 3D透视核心 */
-            z-index: 1;
+        /* 顶部装饰 */
+        #start-screen::before {
+            content: ''; position: absolute; top: 0; width: 100%; height: 30%;
+            background: radial-gradient(ellipse at top, rgba(255,255,255,0.1) 0%, transparent 70%);
             pointer-events: none;
-        }
-
-        /* 赛道平面 */
-        .road-plane {
-            position: absolute; bottom: -50%; left: 50%; 
-            width: 200%; height: 100%;
-            transform: translateX(-50%) rotateX(60deg);
-            background: 
-                /* 中心虚线 (精细版) */
-                linear-gradient(90deg, transparent 49.5%, rgba(255,255,255,0.8) 49.5%, rgba(255,255,255,0.8) 50.5%, transparent 50.5%),
-                /* 两侧实线 */
-                linear-gradient(90deg, transparent 20%, #fff 20%, #fff 21%, #333 21%, #333 79%, #fff 79%, #fff 80%, transparent 80%),
-                /* 路面噪点底色 */
-                radial-gradient(circle at 50% 0%, #333, #111);
-            background-size: 100% 100%, 100% 100%, 100% 100%;
-            /* 遮罩：让远端渐渐消失 */
-            -webkit-mask-image: linear-gradient(to top, black 0%, transparent 80%);
-            mask-image: linear-gradient(to top, black 0%, transparent 80%);
-        }
-
-        /* 动态光流 */
-        .road-plane::after {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: repeating-linear-gradient(0deg, transparent 0, transparent 40px, rgba(255,255,255,0.03) 40px, rgba(255,255,255,0.03) 80px);
-            animation: roadScroll 1s linear infinite;
-        }
-
-        @keyframes roadScroll {
-            from { background-position: 0 0; }
-            to { background-position: 0 80px; }
         }
 
         .logo-box {
@@ -89,7 +59,7 @@
         .racing-flags {
             width: 140px; height: 100px;
             margin-bottom: 10px; z-index: 20;
-            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.8));
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.8));
             animation: floatFlags 3s infinite ease-in-out;
         }
         @keyframes floatFlags {
@@ -99,37 +69,43 @@
 
         .title-box { text-align: center; color: #fff; margin-bottom: 40px; z-index: 20; }
         
+        /* 核心修改：回归纯正黑体 */
         .main-title { 
-            font-family: "YouSheBiaoTiHei", "ZCOOL QingKe HuangYou", sans-serif;
-            font-weight: 400; font-size: 42px; line-height: 1.2;
+            font-weight: 900; /* 极粗 */
+            font-size: 42px; line-height: 1.2;
             color: #FFEB3B; letter-spacing: 2px; margin: 0;
-            text-shadow: 0 2px 0 #bfa826, 0 5px 10px rgba(0,0,0,0.5);
+            text-shadow: 0 4px 0 #000, 0 0 30px rgba(255, 235, 59, 0.4);
             font-style: italic; transform: skewX(-5deg);
         }
         
         .sub-title { 
             font-weight: 700; font-size: 16px; color: #fff;
             margin-top: 12px; letter-spacing: 4px; text-transform: uppercase;
-            background: rgba(0,0,0,0.6); padding: 6px 16px; 
+            background: #000; padding: 6px 14px; 
             display: inline-block; transform: skewX(-5deg);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(4px);
+            border-bottom: 3px solid #FFEB3B;
         }
 
         .start-btn {
             font-weight: 900; font-size: 22px; color: #000; 
             background: linear-gradient(135deg, #FFEB3B 0%, #FBC02D 100%);
-            border: 3px solid #fff; padding: 16px 60px; 
+            border: 4px solid #000; padding: 16px 64px; 
             transform: skewX(-10deg);
             cursor: pointer; z-index: 30; outline: none;
-            box-shadow: 0 10px 30px rgba(255, 235, 59, 0.3);
+            box-shadow: 6px 6px 0 #111;
             animation: engineStart 1.5s infinite ease-in-out alternate;
             position: relative; letter-spacing: 2px;
         }
-        .start-btn span { display: block; transform: skewX(10deg); }
+        .start-btn span { display: block; transform: skewX(10deg); } /* 修正文字倾斜 */
+
         @keyframes engineStart {
             0% { transform: skewX(-10deg) scale(1); filter: brightness(1); }
-            100% { transform: skewX(-10deg) scale(1.05); filter: brightness(1.1); box-shadow: 0 10px 40px rgba(255, 235, 59, 0.6); }
+            100% { transform: skewX(-10deg) scale(1.05); filter: brightness(1.1); box-shadow: 6px 6px 0 #111, 0 0 25px rgba(255,235,59,0.4); }
+        }
+
+        .home-track-svg {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 60vh;
+            pointer-events: none; z-index: 1; preserveAspectRatio: none;
         }
 
         /* --- 4. 游戏内容 --- */
@@ -173,6 +149,7 @@
 
         .bottom-bar { display: flex; justify-content: center; gap: 20px; pointer-events: auto; }
         .pixel-btn {
+            font-family: "PingFang SC", sans-serif;
             pointer-events: auto; font-weight: 900; font-size: 16px; color: #fff; background: #333;
             border: 3px solid #fff; padding: 12px 30px;
             box-shadow: 4px 4px 0 #000; border-radius: 8px; cursor: pointer;
@@ -255,9 +232,26 @@
             <span>开始竞赛</span>
         </button>
 
-        <div class="road-container">
-            <div class="road-plane"></div>
-        </div>
+        <svg class="home-track-svg" viewBox="0 0 500 400" preserveAspectRatio="none">
+            <defs>
+                <filter id="noise">
+                    <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/>
+                </filter>
+                <linearGradient id="roadGrad" x1="0.5" y1="0" x2="0.5" y2="1">
+                    <stop offset="0%" stop-color="#111"/>
+                    <stop offset="100%" stop-color="#2c2c2c"/>
+                </linearGradient>
+            </defs>
+            <rect x="0" y="0" width="500" height="150" fill="#0b0e14"/>
+            <path d="M0,150 Q250,100 500,150" fill="#1a237e" opacity="0.3"/>
+            <path d="M180,150 L320,150 L550,400 L-50,400 Z" fill="url(#roadGrad)"/>
+            <path d="M180,150 L320,150 L550,400 L-50,400 Z" fill="#000" opacity="0.3" filter="url(#noise)"/>
+            <path d="M180,150 L-50,400" stroke="#F44336" stroke-width="15" stroke-dasharray="30,30"/>
+            <path d="M180,150 L-50,400" stroke="#fff" stroke-width="15" stroke-dasharray="0,30,30,0" stroke-dashoffset="30"/>
+            <path d="M320,150 L550,400" stroke="#F44336" stroke-width="15" stroke-dasharray="30,30"/>
+            <path d="M320,150 L550,400" stroke="#fff" stroke-width="15" stroke-dasharray="0,30,30,0" stroke-dashoffset="30"/>
+            <path d="M250,150 L250,400" stroke="rgba(255,255,255,0.5)" stroke-width="2" stroke-dasharray="20,40"/>
+        </svg>
     </div>
 
     <canvas id="gameCanvas"></canvas>
@@ -596,8 +590,10 @@
         const topMargin = h * 0.25; 
         const rowGap = carHeight * 1.5;
         const groupGap = rowGap * 1.2;
+        // 核心修复：大幅增加底部留白，防止被手机UI遮挡
         const bottomPadding = h * 0.5; 
 
+        // 如果比赛结束，我们将所有车合并到一个列表，统一计算位置
         let renderList = [];
         if (isFinished) {
             renderList = [...cars].sort((a,b) => a.foundYear - b.foundYear || a.originalIndex - b.originalIndex);
@@ -624,6 +620,7 @@
         // --- 智能缩放 ---
         const totalRows = Math.ceil(renderList.length / LANE_COUNT);
         let totalH = topMargin + (totalRows) * rowGap + bottomPadding;
+        
         let targetScale = totalH > h ? h / totalH : 1;
         targetScale = Math.max(targetScale, 0.4); 
         cameraScale += (targetScale - cameraScale) * 0.1;
@@ -649,12 +646,6 @@
         }
 
         // 1. 绘制固定终点线 (不随车移动，固定在屏幕下方)
-        // 关键：因为这里已经应用了 cameraScale，所以 fixedFinishLineY 需要反向缩放
-        // 实际上为了简单，我们让线画在 "世界坐标" 的一个固定位置? 
-        // 不，"固定在下面" 意味着它是 UI。但用户希望 "车超过它"。
-        // 所以它必须在世界坐标里。我们把它放在当前视图的底部。
-        // drawH 是当前可视世界的高度。 fixedFinishLineY 是屏幕坐标。
-        // 转换屏幕坐标 -> 世界坐标: Y_world = Y_screen / cameraScale
         const worldLineY = fixedFinishLineY / cameraScale;
         drawFinishLine(ctx, worldLineY, roadW);
 
@@ -673,8 +664,13 @@
                         cars.push(new Car(name, currentYear, cars.length));
                     });
                 } else {
-                    if(displayedCount >= 29 && yearTimer > 1000) {
+                    // 强制结束机制：如果超时3秒，无论计数如何，直接结束
+                    // 这样可以防止因卡顿导致的死循环
+                    if((displayedCount >= 29 && yearTimer > 1000) || yearTimer > 3000) {
                         isFinished = true;
+                        displayedCount = cars.length; // 修正显示数量
+                        uiCount.innerText = displayedCount;
+                        
                         btnToggle.innerText = "重播";
                         btnToggle.classList.add('btn-replay');
                         btnSkip.style.display = 'none';
