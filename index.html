@@ -13,27 +13,27 @@
         body { 
             margin: 0; overflow: hidden; 
             background: #050505; 
-            font-family: "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
             touch-action: none; user-select: none;
             -webkit-tap-highlight-color: transparent;
             display: flex; justify-content: center;
         }
 
-        /* --- 2. 游戏主容器 --- */
+        /* --- 2. 游戏容器 --- */
         #game-container {
             position: relative;
-            width: 100%; max-width: 500px; /* 限制PC端宽度 */
+            width: 100%; max-width: 500px;
             height: 100vh;
             background: #2E7D32; 
             overflow: hidden;
             box-shadow: 0 0 50px rgba(0,0,0,0.5);
         }
 
-        /* --- 3. 首页 (精修版) --- */
+        /* --- 3. 首页 (修正版) --- */
         #start-screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            /* 黑金渐变背景 */
-            background: radial-gradient(circle at 50% 30%, #1a1a1a 0%, #000000 100%);
+            /* 更有质感的黑金背景 */
+            background: linear-gradient(180deg, #1a1a1a 0%, #000000 100%);
             z-index: 10000;
             display: flex; flex-direction: column; 
             align-items: center; justify-content: flex-start;
@@ -42,14 +42,24 @@
         }
         #start-screen.hidden { transform: translateY(-100%); }
 
-        /* Logo 区域 */
+        /* Logo 区域 - 核心修复 */
         .logo-box {
-            width: 180px; height: auto;
+            width: 100%;
+            height: 80px; /* 给定固定高度 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
             margin-bottom: 40px;
-            /* 即使没有图片，SVG也能完美显示 */
         }
-        
-        /* 标题文字 */
+        .logo-img {
+            /* 关键：使用 contain 保持比例，max-width 限制大小 */
+            height: 100%; 
+            width: auto; 
+            max-width: 200px;
+            object-fit: contain; 
+        }
+
+        /* 标题 */
         .title-box { text-align: center; color: #fff; margin-bottom: 50px; z-index: 10; }
         .main-title { 
             font-weight: 900; font-size: 34px; line-height: 1.3;
@@ -63,38 +73,27 @@
             margin-top: 10px; letter-spacing: 4px; text-transform: uppercase;
         }
 
-        /* 按钮 (高级感呼吸) */
+        /* 按钮 */
         .start-btn {
-            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
-            font-weight: 700; font-size: 20px; 
-            color: #000; 
+            font-weight: 700; font-size: 20px; color: #000; 
             background: linear-gradient(135deg, #FFEB3B, #FDD835);
-            border: none; padding: 18px 64px;
-            border-radius: 50px;
-            cursor: pointer; z-index: 20;
-            outline: none;
+            border: none; padding: 18px 64px; border-radius: 50px;
+            cursor: pointer; z-index: 20; outline: none;
             box-shadow: 0 4px 15px rgba(253, 216, 53, 0.3);
-            position: relative;
-            overflow: hidden;
             animation: breathe 2s infinite ease-in-out;
         }
-        /* 光扫过按钮的效果 */
-        .start-btn::after {
-            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-            animation: shine 3s infinite;
-        }
-        @keyframes shine { 0% {left: -100%;} 20% {left: 100%;} 100% {left: 100%;} }
         @keyframes breathe {
             0%, 100% { transform: scale(1); box-shadow: 0 4px 15px rgba(253, 216, 53, 0.3); }
             50% { transform: scale(1.05); box-shadow: 0 4px 25px rgba(253, 216, 53, 0.6); }
         }
 
-        /* 城市剪影 SVG 容器 */
-        .city-skyline-svg {
-            position: absolute; bottom: 0; left: 0; width: 100%;
-            height: auto; max-height: 45%;
+        /* 城市剪影插画 (调整颜色对比度) */
+        .skyline-svg {
+            position: absolute; bottom: 0; left: 0; width: 100%; 
+            height: auto; max-height: 40vh;
             pointer-events: none; z-index: 1;
+            /* 稍微透明一点，让黑色背景透出来，融合感更好 */
+            opacity: 0.9;
         }
 
         /* --- 4. 游戏画布 --- */
@@ -178,16 +177,7 @@
 <div id="game-container">
     <div id="start-screen">
         <div class="logo-box">
-            <svg viewBox="0 0 300 80" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="40" cy="40" r="35" fill="none" stroke="white" stroke-width="6"/>
-                <path d="M25 55 Q 40 40 55 25 L 50 20 Q 35 35 20 50 Z" fill="white"/>
-                <path d="M25 55 L 20 65 L 30 60 Z" fill="#FFEB3B"/> <g transform="translate(85, 20)" fill="white">
-                    <path d="M30,0 L35,0 L65,25 L60,25 L55,20 L10,20 L5,25 L0,25 L30,0 Z M32,5 L15,18 L50,18 L32,5 Z M15,28 L50,28 L50,34 L15,34 Z M15,40 L50,40 L50,46 L35,46 L35,52 L52,52 L52,58 L12,58 L12,52 L30,52 L30,46 L15,46 Z"/>
-                    <path d="M80,10 L90,10 L90,25 L105,25 L105,35 L90,35 L90,55 L80,55 L80,35 L65,35 L65,25 L80,25 Z"/>
-                    <path d="M120,5 L125,5 L135,15 L140,5 L145,5 L145,25 L150,25 L150,30 L145,30 L145,55 L138,55 L138,32 L132,45 L128,45 L122,32 L122,55 L115,55 L115,5 Z M155,10 L180,10 L180,16 L160,16 L160,22 L175,22 L175,28 L160,28 L160,35 L180,35 L180,41 L165,41 L175,55 L165,55 L155,42 L155,10 Z"/>
-                    <path d="M190,5 L225,5 L225,11 L195,11 L195,20 L220,20 L220,26 L195,26 L195,35 L225,35 L225,41 L195,41 L195,50 L190,55 L190,5 Z M230,5 L255,5 L255,11 L235,11 L235,18 L250,18 L250,24 L235,24 L235,32 L250,32 L250,38 L235,38 L235,55 L228,55 L228,5 Z"/>
-                </g>
-            </svg>
+            <img src="组 1.png" alt="金十数据" class="logo-img">
         </div>
         
         <div class="title-box">
@@ -197,10 +187,17 @@
         
         <button class="start-btn" id="btn-start-game">立即查看</button>
 
-        <svg class="city-skyline-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 300" preserveAspectRatio="xMidYBottom slice">
-            <path fill="#222" d="M0,300 L0,200 L50,200 L50,150 L100,150 L100,220 L150,220 L150,180 L200,180 L200,250 L280,250 L280,160 L350,160 L350,210 L420,210 L420,130 L480,130 L480,240 L550,240 L550,190 L620,190 L620,260 L700,260 L700,140 L780,140 L780,220 L850,220 L850,170 L920,170 L920,230 L1000,230 L1000,300 Z" opacity="0.6"></path>
-            <path fill="#2a2a2a" d="M0,300 L0,240 L40,240 L40,190 L90,190 L90,260 L140,260 L140,210 L180,210 L180,280 L250,280 L250,200 L320,200 L320,250 L380,250 L380,170 L440,170 L440,270 L520,270 L520,220 L580,220 L580,280 L650,280 L650,180 L720,180 L720,250 L800,250 L800,210 L880,210 L880,260 L1000,260 L1000,300 Z" opacity="0.8"></path>
-            <path fill="#000" d="M0,300 L0,270 L30,270 L30,220 L80,220 L80,280 L130,280 L130,240 L170,240 L170,290 L230,290 L230,230 L300,230 L300,270 L360,270 L360,200 L410,200 L410,280 L490,280 L490,250 L560,250 L560,290 L630,290 L630,210 L700,210 L700,270 L770,270 L770,240 L850,240 L850,280 L950,280 L950,250 L1000,250 L1000,300 Z"></path>
+        <svg class="skyline-svg" viewBox="0 0 500 150" preserveAspectRatio="none">
+            <path fill="#2c2c2c" d="M0,150 L0,50 L20,50 L20,80 L40,80 L40,40 L70,40 L70,90 L90,90 L90,60 L120,60 L120,150 Z" />
+            <path fill="#2c2c2c" d="M380,150 L380,70 L410,70 L410,40 L440,40 L440,80 L460,80 L460,50 L500,50 L500,150 Z" />
+            
+            <path fill="#3d3d3d" d="M100,150 L100,80 L130,80 L130,50 L160,50 L160,100 L190,100 L190,150 Z" />
+            <path fill="#3d3d3d" d="M300,150 L300,90 L330,90 L330,60 L360,60 L360,150 Z" />
+            
+            <path fill="#4f4f4f" d="M0,150 L0,120 L50,120 L50,150 Z" />
+            <path fill="#4f4f4f" d="M150,150 L150,70 L180,70 L180,40 L220,40 L220,150 Z" />
+            <path fill="#4f4f4f" d="M220,150 L220,90 L250,90 L250,50 L280,50 L280,150 Z" />
+            <path fill="#4f4f4f" d="M400,150 L400,100 L450,100 L450,150 Z" />
         </svg>
     </div>
 
@@ -485,6 +482,7 @@
         }
         totalH += bottomPadding;
 
+        // 智能缩放：基于容器高度计算
         let targetScale = totalH > h ? h / totalH : 1;
         targetScale = Math.max(targetScale, 0.4); 
         cameraScale += (targetScale - cameraScale) * 0.1;
@@ -494,15 +492,20 @@
         ctx.scale(cameraScale, cameraScale);
         ctx.translate(-centerX, 0);
 
+        // 绘制路面
         const drawH = h / cameraScale;
+        // 背景草地
         ctx.fillStyle = "#2E7D32"; ctx.fillRect(0, 0, w, drawH);
         
+        // 沥青路
         ctx.fillStyle = "#555"; ctx.fillRect(roadLeft, 0, roadW, drawH);
         if(!isPaused && !isFinished && isGameStarted) roadScroll = (roadScroll + ROAD_SPEED) % 80;
         
+        // 路肩
         ctx.fillStyle = "#EEE"; const bW = roadW*0.02;
         ctx.fillRect(roadLeft-bW, 0, bW, drawH); ctx.fillRect(roadLeft+roadW, 0, bW, drawH);
         
+        // 车道线
         ctx.fillStyle = "rgba(255,255,255,0.4)";
         for(let i=1; i<LANE_COUNT; i++) {
             let lx = roadLeft + i*laneWidth;
