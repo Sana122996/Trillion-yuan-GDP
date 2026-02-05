@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>中国万亿GDP城市大奖赛</title>
+    <title>全国“万亿GDP”城市大奖赛</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Fira+Code:wght@700&family=ZCOOL+QingKe+HuangYou&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     
     <style>
@@ -13,8 +13,7 @@
         body { 
             margin: 0; overflow: hidden; 
             background: #050505; 
-            /* 使用系统原生超粗字体，保证在iOS和安卓上都干净、好看 */
-            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
             touch-action: none; user-select: none;
             -webkit-tap-highlight-color: transparent;
             display: flex; justify-content: center;
@@ -26,27 +25,31 @@
             height: 100vh;
             background: #2E7D32; 
             overflow: hidden;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
         }
 
-        /* --- 2. 首页 (赛车风格) --- */
+        /* --- 2. 首页 (精致赛道版) --- */
         #start-screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(180deg, #0a0a0a 0%, #1c1c1c 100%);
+            /* 深邃夜空背景 */
+            background: radial-gradient(circle at 50% 20%, #1a1f35 0%, #000000 100%);
             z-index: 10000;
             display: flex; flex-direction: column; 
             align-items: center; 
-            padding-top: 12vh;
+            padding-top: 10vh;
             transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
             overflow: hidden;
         }
         #start-screen.hidden { transform: translateY(-100%); }
 
-        /* 顶部氛围光 */
+        /* 顶部星光装饰 */
         #start-screen::before {
-            content: ''; position: absolute; top: 0; width: 100%; height: 40%;
-            background: radial-gradient(circle at top, rgba(255,235,59,0.1) 0%, transparent 70%);
-            pointer-events: none;
+            content: ''; position: absolute; top: 0; width: 100%; height: 30%;
+            background-image: 
+                radial-gradient(1px 1px at 10% 10%, #fff, transparent),
+                radial-gradient(2px 2px at 20% 30%, #fff, transparent),
+                radial-gradient(1px 1px at 80% 40%, #fff, transparent);
+            opacity: 0.5; pointer-events: none;
         }
 
         .logo-box {
@@ -56,58 +59,55 @@
         }
         .logo-img { height: 100%; width: auto; max-width: 120px; object-fit: contain; }
 
+        /* 飘动的赛车旗 */
         .racing-flags {
             width: 140px; height: 100px;
             margin-bottom: 10px; z-index: 20;
-            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.8));
             animation: floatFlags 3s infinite ease-in-out;
         }
         @keyframes floatFlags {
             0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-8px) rotate(2deg); }
+            50% { transform: translateY(-6px) rotate(2deg); }
         }
 
         .title-box { text-align: center; color: #fff; margin-bottom: 40px; z-index: 20; }
         
-        /* 核心修改：使用系统粗体，去掉花哨的黄油体 */
         .main-title { 
-            font-weight: 900; /* 最粗 */
-            font-size: 44px; 
-            line-height: 1.2;
-            color: #FFEB3B; 
-            letter-spacing: 1px; margin: 0;
-            text-shadow: 0 4px 0 #000, 0 0 20px rgba(255, 235, 59, 0.3);
-            font-style: italic; /* 保持斜体速度感 */
-            transform: skewX(-5deg);
+            font-weight: 900; font-size: 44px; line-height: 1.2;
+            color: #FFEB3B; letter-spacing: 1px; margin: 0;
+            /* 更有质感的文字投影 */
+            text-shadow: 0 2px 0 #bfa826, 0 5px 10px rgba(0,0,0,0.5);
+            font-style: italic; transform: skewX(-5deg);
         }
         
         .sub-title { 
             font-weight: 700; font-size: 16px; color: #fff;
             margin-top: 12px; letter-spacing: 2px;
-            background: #000; padding: 6px 16px; 
-            display: inline-block; transform: skewX(-5deg);
+            background: linear-gradient(90deg, transparent, #000, transparent);
+            padding: 6px 20px; display: inline-block; transform: skewX(-5deg);
             border-bottom: 3px solid #FFEB3B;
         }
 
-        /* 开始按钮 */
+        /* 按钮 */
         .start-btn {
             font-weight: 900; font-size: 22px; color: #000; 
-            background: linear-gradient(to bottom, #FFEB3B, #FBC02D);
-            border: 4px solid #000; padding: 16px 60px; 
+            background: linear-gradient(135deg, #FFEB3B 0%, #FBC02D 100%);
+            border: 3px solid #fff; padding: 16px 60px; 
             transform: skewX(-10deg);
             cursor: pointer; z-index: 30; outline: none;
-            box-shadow: 6px 6px 0 #222;
+            box-shadow: 0 10px 30px rgba(255, 235, 59, 0.3);
             animation: engineStart 1.5s infinite ease-in-out alternate;
             position: relative; letter-spacing: 2px;
         }
-        .start-btn span { display: block; transform: skewX(10deg); } /* 文字回正 */
+        .start-btn span { display: block; transform: skewX(10deg); }
 
         @keyframes engineStart {
             0% { transform: skewX(-10deg) scale(1); filter: brightness(1); }
-            100% { transform: skewX(-10deg) scale(1.05); filter: brightness(1.1); box-shadow: 6px 6px 0 #222, 0 0 25px rgba(255,235,59,0.4); }
+            100% { transform: skewX(-10deg) scale(1.05); filter: brightness(1.1); box-shadow: 0 10px 40px rgba(255, 235, 59, 0.6); }
         }
 
-        /* 首页赛道 SVG */
+        /* 首页赛道 SVG (精致版) */
         .home-track-svg {
             position: absolute; bottom: 0; left: 0; width: 100%; height: 60vh;
             pointer-events: none; z-index: 1; preserveAspectRatio: none;
@@ -154,7 +154,6 @@
 
         .bottom-bar { display: flex; justify-content: center; gap: 20px; pointer-events: auto; }
         .pixel-btn {
-            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
             pointer-events: auto; font-weight: 900; font-size: 16px; color: #fff; background: #333;
             border: 3px solid #fff; padding: 12px 30px;
             box-shadow: 4px 4px 0 #000; border-radius: 8px; cursor: pointer;
@@ -239,17 +238,29 @@
 
         <svg class="home-track-svg" viewBox="0 0 500 400" preserveAspectRatio="none">
             <defs>
-                <linearGradient id="trackGrad" x1="0%" y1="100%" x2="0%" y2="0%">
-                    <stop offset="0%" style="stop-color:#333;stop-opacity:1" />
-                    <stop offset="100%" style="stop-color:#111;stop-opacity:1" />
+                <filter id="noise">
+                    <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/>
+                </filter>
+                <linearGradient id="roadGrad" x1="0.5" y1="0" x2="0.5" y2="1">
+                    <stop offset="0%" stop-color="#111"/>
+                    <stop offset="100%" stop-color="#2c2c2c"/>
                 </linearGradient>
             </defs>
-            <path d="M-100,400 L600,400 L300,100 L200,100 Z" fill="url(#trackGrad)"/>
-            <path d="M-100,400 L200,100" stroke="#F44336" stroke-width="15" stroke-dasharray="40,40"/>
-            <path d="M-100,400 L200,100" stroke="#fff" stroke-width="15" stroke-dasharray="0,40,40,0" stroke-dashoffset="40"/>
-            <path d="M600,400 L300,100" stroke="#F44336" stroke-width="15" stroke-dasharray="40,40"/>
-            <path d="M600,400 L300,100" stroke="#fff" stroke-width="15" stroke-dasharray="0,40,40,0" stroke-dashoffset="40"/>
-            <path d="M250,400 L250,100" stroke="rgba(255,255,255,0.3)" stroke-width="4" stroke-dasharray="30,50"/>
+            
+            <rect x="0" y="0" width="500" height="150" fill="#0b0e14"/>
+            <path d="M0,150 Q250,100 500,150" fill="#1a237e" opacity="0.3"/>
+
+            <path d="M180,150 L320,150 L550,400 L-50,400 Z" fill="url(#roadGrad)"/>
+            
+            <path d="M180,150 L320,150 L550,400 L-50,400 Z" fill="#000" opacity="0.3" filter="url(#noise)"/>
+
+            <path d="M180,150 L-50,400" stroke="#F44336" stroke-width="15" stroke-dasharray="30,30"/>
+            <path d="M180,150 L-50,400" stroke="#fff" stroke-width="15" stroke-dasharray="0,30,30,0" stroke-dashoffset="30"/>
+            
+            <path d="M320,150 L550,400" stroke="#F44336" stroke-width="15" stroke-dasharray="30,30"/>
+            <path d="M320,150 L550,400" stroke="#fff" stroke-width="15" stroke-dasharray="0,30,30,0" stroke-dashoffset="30"/>
+
+            <path d="M250,150 L250,400" stroke="rgba(255,255,255,0.5)" stroke-width="2" stroke-dasharray="20,40"/>
         </svg>
     </div>
 
@@ -545,7 +556,7 @@
             if(isFinished && this.name === '上海') {
                 ctx.save();
                 
-                const text = "点击查看历史数据";
+                const text = "点击车辆看历史数据"; // 文案更新
                 ctx.font = "bold 14px sans-serif";
                 const padding = 12;
                 const textMetrics = ctx.measureText(text);
@@ -555,9 +566,23 @@
                 
                 // 原始中心X
                 let centerX = x + this.width / 2;
-                // 智能偏移逻辑：如果气泡太靠左，强制右移
-                if (centerX - boxWidth/2 < 10) {
-                    centerX = 10 + boxWidth/2;
+                
+                // --- 核心修复：全向防裁切逻辑 ---
+                // 1. 气泡最左边不能小于 10
+                let boxLeft = centerX - boxWidth / 2;
+                if (boxLeft < 10) {
+                    centerX = 10 + boxWidth / 2;
+                }
+                // 2. 气泡最右边不能大于 w - 10
+                // 这里的 w 是画布的逻辑宽度 (game-container width)
+                // 由于我们在 ctx.scale 之前，需要谨慎。
+                // 但这里是在 cameraScale 坐标系下绘制的，边界也应该是 (w / cameraScale)
+                // 简单起见，我们假设 w 是相对固定的，用相对偏移量来限制
+                // 更好的做法是限制它相对于 x 的偏移不要太离谱，或者简单地限制右边界
+                // 这里我们做个简单的右边界检查
+                const rightBound = w / cameraScale - 10;
+                if (centerX + boxWidth / 2 > rightBound) {
+                    centerX = rightBound - boxWidth / 2;
                 }
 
                 const bottomY = y - 10 + Math.sin(Date.now()/200)*5; // 浮动
@@ -572,7 +597,7 @@
                 
                 // 箭头始终指向车子中心
                 const carCenterX = x + this.width / 2;
-                // 确保箭头不会和圆角打架，做个限制
+                // 限制箭头位置，防止跑出气泡圆角区域
                 let arrowX = Math.max(centerX - boxWidth/2 + 10, Math.min(carCenterX, centerX + boxWidth/2 - 10));
 
                 ctx.moveTo(arrowX - 6, boxTopY + boxHeight);
@@ -621,9 +646,11 @@
         const topMargin = h * 0.25; 
         const rowGap = carHeight * 1.5;
         const groupGap = rowGap * 1.2;
-        // 核心修正：加大底部留白，防止被 UI 遮挡
-        const bottomPadding = h * 0.4; 
+        // 核心修复：大幅增加底部留白，防止被手机UI遮挡
+        // 这样在计算缩放时，会强制把画面拉高，留出下面一大块空地
+        const bottomPadding = h * 0.5; 
 
+        // 如果比赛结束，我们将所有车合并到一个列表，统一计算位置
         let renderList = [];
         if (isFinished) {
             renderList = [...cars].sort((a,b) => a.foundYear - b.foundYear || a.originalIndex - b.originalIndex);
@@ -644,11 +671,11 @@
             newCars.sort((a,b) => a.originalIndex - b.originalIndex);
             newCars.forEach((car, i) => car.update(i, newCarsStartY));
             
-            // 修正终点线位置：在车下方更远一点，保证不压字
+            // 修正终点线位置：在车下方更远一点
             if (currentYear === 2006) {
                 currentFinishLineY = topMargin + rowGap + 40; 
             } else if(oldCars.length > 0) {
-                currentFinishLineY = newCarsStartY + rowGap * 0.9;
+                currentFinishLineY = newCarsStartY + rowGap * 0.8;
             }
             
             renderList = [...oldCars, ...newCars];
@@ -682,7 +709,7 @@
             for(let y=-80; y<drawH; y+=80) ctx.fillRect(lx-2, y+roadScroll, 4, 40);
         }
 
-        // 1. 先绘制赛车终点线 (在底部)
+        // 1. 先绘制赛车终点线 (这样它在底部，车从上面开过)
         if (!isFinished) {
             drawFinishLine(ctx, currentFinishLineY, roadW);
         }
