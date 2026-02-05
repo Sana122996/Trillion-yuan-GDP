@@ -22,14 +22,14 @@
         /* --- 2. 游戏容器 --- */
         #game-container {
             position: relative;
-            width: 100%; max-width: 500px; /* 限制PC端宽度 */
+            width: 100%; max-width: 500px;
             height: 100vh;
             background: #2E7D32; 
             overflow: hidden;
             box-shadow: 0 0 50px rgba(0,0,0,0.5);
         }
 
-        /* --- 3. 首页 --- */
+        /* --- 3. 首页 (精修版) --- */
         #start-screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(180deg, #1a1a1a 0%, #000000 100%);
@@ -41,13 +41,17 @@
         }
         #start-screen.hidden { transform: translateY(-100%); }
 
+        /* Logo 区域 - 已缩小 50% */
         .logo-box {
-            width: 100%; height: 80px; 
+            width: 100%;
+            height: 60px; /* 高度相应减小 */
             display: flex; justify-content: center; align-items: center;
-            margin-bottom: 40px;
+            margin-bottom: 30px; /* 间距相应减小 */
         }
         .logo-img {
-            height: 100%; width: auto; max-width: 200px;
+            height: 100%; 
+            width: auto; 
+            max-width: 100px; /* 核心修改：最大宽度从 200px 改为 100px */
             object-fit: contain; 
         }
 
@@ -84,10 +88,12 @@
             50% { transform: scale(1.05); box-shadow: 0 4px 25px rgba(253, 216, 53, 0.6); }
         }
 
-        .city-skyline-svg {
+        /* 城市剪影 SVG (带窗户) */
+        .skyline-svg {
             position: absolute; bottom: 0; left: 0; width: 100%;
             height: auto; max-height: 45%;
-            pointer-events: none; z-index: 1; opacity: 0.9;
+            pointer-events: none; z-index: 1; 
+            opacity: 1; /* 提高不透明度，让窗户更亮 */
         }
 
         /* --- 4. 游戏画布 --- */
@@ -119,24 +125,15 @@
         }
         #count-num { color: #FFEB3B; font-family: 'Press Start 2P'; margin: 0 8px; font-size: 16px; }
 
-        /* --- 新增：跳过按钮 (小小的，不明显) --- */
+        /* 跳过按钮 */
         #btn-skip {
-            position: absolute;
-            top: 10px; right: 0;
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.6); /* 半透明，不明显 */
+            position: absolute; top: 10px; right: 0;
+            font-size: 12px; color: rgba(255, 255, 255, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 4px 10px;
-            border-radius: 12px;
-            cursor: pointer;
-            pointer-events: auto;
-            transition: all 0.3s;
+            padding: 4px 10px; border-radius: 12px;
+            cursor: pointer; pointer-events: auto; transition: all 0.3s;
         }
-        #btn-skip:hover {
-            color: #fff;
-            background: rgba(255,255,255,0.2);
-            border-color: #fff;
-        }
+        #btn-skip:hover { color: #fff; background: rgba(255,255,255,0.2); border-color: #fff; }
 
         .bottom-bar { display: flex; justify-content: center; gap: 20px; pointer-events: auto; }
         .pixel-btn {
@@ -201,14 +198,21 @@
         <button class="start-btn" id="btn-start-game">立即查看</button>
 
         <svg class="skyline-svg" viewBox="0 0 500 150" preserveAspectRatio="none">
-            <path fill="#2c2c2c" d="M0,150 L0,50 L20,50 L20,80 L40,80 L40,40 L70,40 L70,90 L90,90 L90,60 L120,60 L120,150 Z" />
-            <path fill="#2c2c2c" d="M380,150 L380,70 L410,70 L410,40 L440,40 L440,80 L460,80 L460,50 L500,50 L500,150 Z" />
-            <path fill="#3d3d3d" d="M100,150 L100,80 L130,80 L130,50 L160,50 L160,100 L190,100 L190,150 Z" />
-            <path fill="#3d3d3d" d="M300,150 L300,90 L330,90 L330,60 L360,60 L360,150 Z" />
-            <path fill="#4f4f4f" d="M0,150 L0,120 L50,120 L50,150 Z" />
-            <path fill="#4f4f4f" d="M150,150 L150,70 L180,70 L180,40 L220,40 L220,150 Z" />
-            <path fill="#4f4f4f" d="M220,150 L220,90 L250,90 L250,50 L280,50 L280,150 Z" />
-            <path fill="#4f4f4f" d="M400,150 L400,100 L450,100 L450,150 Z" />
+            <path fill="#222" d="M0,150 L0,50 L20,50 L20,80 L40,80 L40,40 L70,40 L70,90 L90,90 L90,60 L120,60 L120,150 Z" />
+            <path fill="#222" d="M380,150 L380,70 L410,70 L410,40 L440,40 L440,80 L460,80 L460,50 L500,50 L500,150 Z" />
+            <path fill="#333" d="M100,150 L100,80 L130,80 L130,50 L160,50 L160,100 L190,100 L190,150 Z" />
+            <path fill="#333" d="M300,150 L300,90 L330,90 L330,60 L360,60 L360,150 Z" />
+            <path fill="#444" d="M0,150 L0,120 L50,120 L50,150 Z" />
+            <path fill="#444" d="M150,150 L150,70 L180,70 L180,40 L220,40 L220,150 Z" />
+            <path fill="#444" d="M220,150 L220,90 L250,90 L250,50 L280,50 L280,150 Z" />
+            <path fill="#444" d="M400,150 L400,100 L450,100 L450,150 Z" />
+            
+            <g fill="#FFEB3B" opacity="0.8">
+                <rect x="5" y="60" width="4" height="6"/><rect x="12" y="70" width="4" height="6"/><rect x="5" y="90" width="4" height="6"/><rect x="12" y="100" width="4" height="6"/><rect x="5" y="130" width="4" height="6"/><rect x="25" y="90" width="4" height="6"/><rect x="32" y="110" width="4" height="6"/><rect x="25" y="130" width="4" height="6"/><rect x="45" y="50" width="4" height="6"/><rect x="55" y="70" width="4" height="6"/><rect x="45" y="100" width="4" height="6"/><rect x="62" y="120" width="4" height="6"/><rect x="75" y="100" width="4" height="6"/><rect x="82" y="130" width="4" height="6"/><rect x="95" y="70" width="4" height="6"/><rect x="105" y="90" width="4" height="6"/><rect x="112" y="120" width="4" height="6"/>
+                <rect x="135" y="60" width="4" height="6"/><rect x="145" y="80" width="4" height="6"/><rect x="135" y="110" width="4" height="6"/><rect x="152" y="130" width="4" height="6"/><rect x="165" y="60" width="4" height="6"/><rect x="175" y="90" width="4" height="6"/><rect x="165" y="120" width="4" height="6"/><rect x="182" y="140" width="4" height="6"/><rect x="195" y="50" width="4" height="6"/><rect x="205" y="80" width="4" height="6"/><rect x="195" y="110" width="4" height="6"/><rect x="212" y="130" width="4" height="6"/><rect x="225" y="100" width="4" height="6"/><rect x="235" y="120" width="4" height="6"/><rect x="225" y="140" width="4" height="6"/><rect x="255" y="60" width="4" height="6"/><rect x="265" y="90" width="4" height="6"/><rect x="272" y="120" width="4" height="6"/><rect x="305" y="100" width="4" height="6"/><rect x="315" y="120" width="4" height="6"/><rect x="322" y="140" width="4" height="6"/><rect x="335" y="70" width="4" height="6"/><rect x="345" y="90" width="4" height="6"/><rect x="352" y="120" width="4" height="6"/>
+                <rect x="385" y="80" width="4" height="6"/><rect x="395" y="100" width="4" height="6"/><rect x="385" y="130" width="4" height="6"/><rect x="415" y="50" width="4" height="6"/><rect x="425" y="70" width="4" height="6"/><rect x="415" y="100" width="4" height="6"/><rect x="432" y="120" width="4" height="6"/><rect x="445" y="90" width="4" height="6"/><rect x="452" y="110" width="4" height="6"/><rect x="445" y="130" width="4" height="6"/><rect x="465" y="60" width="4" height="6"/><rect x="475" y="80" width="4" height="6"/><rect x="465" y="110" width="4" height="6"/><rect x="485" y="130" width="4" height="6"/><rect x="492" y="70" width="4" height="6"/><rect x="492" y="100" width="4" height="6"/>
+                <rect x="20" y="140" width="3" height="4"/><rect x="60" y="140" width="3" height="4"/><rect x="100" y="140" width="3" height="4"/><rect x="140" y="145" width="3" height="4"/><rect x="180" y="145" width="3" height="4"/><rect x="220" y="145" width="3" height="4"/><rect x="260" y="145" width="3" height="4"/><rect x="300" y="145" width="3" height="4"/><rect x="340" y="145" width="3" height="4"/><rect x="380" y="145" width="3" height="4"/><rect x="420" y="145" width="3" height="4"/><rect x="460" y="145" width="3" height="4"/><rect x="8" y="125" width="2" height="3"/><rect x="35" y="135" width="2" height="3"/><rect x="78" y="115" width="2" height="3"/><rect x="118" y="135" width="2" height="3"/><rect x="158" y="115" width="2" height="3"/><rect x="198" y="135" width="2" height="3"/><rect x="238" y="115" width="2" height="3"/><rect x="278" y="135" width="2" height="3"/><rect x="318" y="115" width="2" height="3"/><rect x="358" y="135" width="2" height="3"/><rect x="398" y="115" width="2" height="3"/><rect x="438" y="135" width="2" height="3"/><rect x="478" y="115" width="2" height="3"/>
+            </g>
         </svg>
     </div>
 
@@ -546,7 +550,7 @@
                         isFinished = true;
                         btnToggle.innerText = "重播";
                         btnToggle.classList.add('btn-replay');
-                        btnSkip.style.display = 'none'; // 结束后隐藏跳过
+                        btnSkip.style.display = 'none';
                         showToast("🏁 统计结束！请点击车辆查看详情");
                     }
                 }
@@ -611,34 +615,28 @@
 
     document.getElementById('modal-close').onclick = () => { modalOverlay.style.display = "none"; };
 
-    // --- 跳过逻辑 (点击后直接显示最终结果) ---
+    // --- 跳过逻辑 ---
     btnSkip.onclick = () => {
-        // 清理当前状态
         cars.forEach(c => hitboxLayer.removeChild(c.hitbox));
         cars = [];
         separators = [];
         
-        // 加载所有数据
         activeYears.forEach(year => {
             timeline[year].forEach(name => {
-                // 直接创建并推入，gameLoop会自动布局它们
                 cars.push(new Car(name, year, cars.length));
             });
         });
 
-        // 设置到最后一年
         currentYearIndex = activeYears.length - 1;
         currentYear = activeYears[currentYearIndex];
         
-        // 更新 UI
         uiYear.innerText = currentYear;
         uiCount.innerText = cars.length;
         
-        // 设置结束状态
         isFinished = true;
         btnToggle.innerText = "重播";
         btnToggle.classList.add('btn-replay');
-        btnSkip.style.display = 'none'; // 隐藏自己
+        btnSkip.style.display = 'none';
         
         showToast("已跳过动画");
     };
@@ -660,7 +658,7 @@
             yearTimer = 0; isFinished = false; isPaused = false;
             uiYear.innerText = currentYear; uiCount.innerText = 1;
             btnToggle.innerText = "暂停"; btnToggle.classList.remove('btn-replay');
-            btnSkip.style.display = 'block'; // 重播时重新显示跳过
+            btnSkip.style.display = 'block';
             timeline[currentYear].forEach(name => cars.push(new Car(name, currentYear, cars.length)));
         } else {
             isPaused = !isPaused;
