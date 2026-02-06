@@ -13,8 +13,7 @@
         body { 
             margin: 0; overflow: hidden; 
             background: #050505; 
-            /* 强制系统黑体，拒绝任何花哨字体 */
-            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Heiti SC", sans-serif;
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
             touch-action: none; user-select: none;
             -webkit-tap-highlight-color: transparent;
             display: flex; justify-content: center;
@@ -29,32 +28,37 @@
             box-shadow: 0 0 50px rgba(0,0,0,0.8);
         }
 
-        /* --- 2. 首页 (精致赛道版) --- */
+        /* --- 2. 首页 --- */
         #start-screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 50% 20%, #1a1f35 0%, #000000 100%);
+            background: radial-gradient(circle at 50% 30%, #1a1a1a 0%, #000000 100%);
             z-index: 10000;
             display: flex; flex-direction: column; 
             align-items: center; 
-            padding-top: 10vh;
-            transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
-            overflow: hidden;
+            padding-top: 12vh;
+            transition: transform 0.6s ease;
         }
         #start-screen.hidden { transform: translateY(-100%); }
 
-        /* 顶部装饰 */
         #start-screen::before {
-            content: ''; position: absolute; top: 0; width: 100%; height: 30%;
-            background: radial-gradient(ellipse at top, rgba(255,255,255,0.1) 0%, transparent 70%);
+            content: ''; position: absolute; top: 0; width: 100%; height: 40%;
+            background: radial-gradient(ellipse at top, rgba(255,255,255,0.08) 0%, transparent 70%);
             pointer-events: none;
         }
 
+        /* SVG 公路背景 */
+        .highway-svg {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 55vh;
+            pointer-events: none; z-index: 1;
+            preserveAspectRatio: none; 
+        }
+
         .logo-box {
-            width: 100%; height: 60px;
+            width: 100%; height: 70px;
             display: flex; justify-content: center; align-items: center;
             margin-bottom: 20px; z-index: 20;
         }
-        .logo-img { height: 100%; width: auto; max-width: 120px; object-fit: contain; }
+        .logo-img { height: 100%; width: auto; max-width: 140px; object-fit: contain; }
 
         .racing-flags {
             width: 140px; height: 100px;
@@ -67,47 +71,38 @@
             50% { transform: translateY(-6px) rotate(2deg); }
         }
 
-        .title-box { text-align: center; color: #fff; margin-bottom: 40px; z-index: 20; }
+        .title-box { text-align: center; color: #fff; margin-bottom: 50px; z-index: 20; }
         
-        /* 核心修改：大标题使用最粗的黑体 */
         .main-title { 
-            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
-            font-weight: 900; /* 最粗 */
-            font-size: 40px; line-height: 1.3;
-            color: #FFEB3B; letter-spacing: 2px; margin: 0;
-            text-shadow: 0 4px 0 #000, 0 0 30px rgba(255, 235, 59, 0.4);
+            font-weight: 900; font-size: 38px; line-height: 1.3;
+            color: #FFEB3B; letter-spacing: 1px; margin: 0;
+            text-shadow: 0 4px 0 #000, 0 10px 20px rgba(0,0,0,0.5);
             font-style: italic; transform: skewX(-5deg);
         }
         
         .sub-title { 
-            font-weight: 700; font-size: 16px; color: #fff;
-            margin-top: 12px; letter-spacing: 4px; text-transform: uppercase;
-            background: #000; padding: 6px 14px; 
+            font-weight: 700; font-size: 16px; color: #ccc;
+            margin-top: 10px; letter-spacing: 4px;
+            background: rgba(0,0,0,0.6); padding: 4px 12px; 
             display: inline-block; transform: skewX(-5deg);
             border-bottom: 3px solid #FFEB3B;
+            backdrop-filter: blur(4px);
         }
 
         .start-btn {
-            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
             font-weight: 900; font-size: 22px; color: #000; 
             background: linear-gradient(135deg, #FFEB3B 0%, #FBC02D 100%);
-            border: 4px solid #000; padding: 16px 64px; 
+            border: none; padding: 18px 64px; 
             transform: skewX(-10deg);
             cursor: pointer; z-index: 30; outline: none;
-            box-shadow: 6px 6px 0 #111;
-            animation: engineStart 1.5s infinite ease-in-out alternate;
-            position: relative; letter-spacing: 2px;
+            box-shadow: 0 0 25px rgba(255, 235, 59, 0.3);
+            animation: pulse 2s infinite;
+            position: relative;
         }
         .start-btn span { display: block; transform: skewX(10deg); }
-
-        @keyframes engineStart {
-            0% { transform: skewX(-10deg) scale(1); filter: brightness(1); }
-            100% { transform: skewX(-10deg) scale(1.05); filter: brightness(1.1); box-shadow: 6px 6px 0 #111, 0 0 25px rgba(255,235,59,0.4); }
-        }
-
-        .home-track-svg {
-            position: absolute; bottom: 0; left: 0; width: 100%; height: 60vh;
-            pointer-events: none; z-index: 1; preserveAspectRatio: none;
+        @keyframes pulse {
+            0% { transform: skewX(-10deg) scale(1); box-shadow: 0 0 25px rgba(255, 235, 59, 0.3); }
+            50% { transform: skewX(-10deg) scale(1.05); box-shadow: 0 0 45px rgba(255, 235, 59, 0.6); }
         }
 
         /* --- 4. 游戏内容 --- */
@@ -151,7 +146,7 @@
 
         .bottom-bar { display: flex; justify-content: center; gap: 20px; pointer-events: auto; }
         .pixel-btn {
-            font-family: "PingFang SC", sans-serif;
+            font-family: -apple-system, sans-serif;
             pointer-events: auto; font-weight: 900; font-size: 16px; color: #fff; background: #333;
             border: 3px solid #fff; padding: 12px 30px;
             box-shadow: 4px 4px 0 #000; border-radius: 8px; cursor: pointer;
@@ -234,25 +229,18 @@
             <span>开始竞赛</span>
         </button>
 
-        <svg class="home-track-svg" viewBox="0 0 500 400" preserveAspectRatio="none">
+        <svg class="highway-svg" viewBox="0 0 500 400" preserveAspectRatio="none">
             <defs>
-                <filter id="noise">
-                    <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/>
-                </filter>
-                <linearGradient id="roadGrad" x1="0.5" y1="0" x2="0.5" y2="1">
-                    <stop offset="0%" stop-color="#111"/>
-                    <stop offset="100%" stop-color="#2c2c2c"/>
+                <linearGradient id="roadGradient" x1="0.5" y1="0" x2="0.5" y2="1">
+                    <stop offset="0%" stop-color="#111" />
+                    <stop offset="100%" stop-color="#333" />
                 </linearGradient>
             </defs>
-            <rect x="0" y="0" width="500" height="150" fill="#0b0e14"/>
-            <path d="M0,150 Q250,100 500,150" fill="#1a237e" opacity="0.3"/>
-            <path d="M180,150 L320,150 L550,400 L-50,400 Z" fill="url(#roadGrad)"/>
-            <path d="M180,150 L320,150 L550,400 L-50,400 Z" fill="#000" opacity="0.3" filter="url(#noise)"/>
-            <path d="M180,150 L-50,400" stroke="#F44336" stroke-width="15" stroke-dasharray="30,30"/>
-            <path d="M180,150 L-50,400" stroke="#fff" stroke-width="15" stroke-dasharray="0,30,30,0" stroke-dashoffset="30"/>
-            <path d="M320,150 L550,400" stroke="#F44336" stroke-width="15" stroke-dasharray="30,30"/>
-            <path d="M320,150 L550,400" stroke="#fff" stroke-width="15" stroke-dasharray="0,30,30,0" stroke-dashoffset="30"/>
-            <path d="M250,150 L250,400" stroke="rgba(255,255,255,0.5)" stroke-width="2" stroke-dasharray="20,40"/>
+            <rect x="0" y="0" width="500" height="100" fill="#0c0c0c"/>
+            <path d="M180,100 L320,100 L550,400 L-50,400 Z" fill="url(#roadGradient)"/>
+            <line x1="180" y1="100" x2="-50" y2="400" stroke="#fff" stroke-width="8" />
+            <line x1="320" y1="100" x2="550" y2="400" stroke="#fff" stroke-width="8" />
+            <line x1="250" y1="100" x2="250" y2="400" stroke="#fff" stroke-width="2" stroke-dasharray="20, 30" opacity="0.6"/>
         </svg>
     </div>
 
@@ -357,11 +345,12 @@
     
     let myChart = null;
     let cars = [];
-    let separators = [];
+    let addedCities = new Set(); 
+    let lastProcessedYear = -1;  
     let currentYearIndex = 0;
     let currentYear = activeYears[0];
     let yearTimer = 0;
-    const YEAR_DURATION = 2500; 
+    const YEAR_DURATION = 1500; 
     let roadScroll = 0;
     const ROAD_SPEED = 8;
     
@@ -392,7 +381,6 @@
         carHeight = carWidth * 1.6; 
         fontSize = Math.floor(carWidth * 0.45);
         
-        // 核心：固定终点线在屏幕下方 3/4 处
         fixedFinishLineY = h * 0.75; 
 
         if(myChart) myChart.resize();
@@ -486,19 +474,14 @@
             const rowGap = this.height * 1.5; 
             this.targetY = startY + row * rowGap;
 
-            // 车辆从屏幕下方生成 (固定终点线下方)
             if(!this.hasSpawned) {
                 this.x = this.targetX;
-                this.y = fixedFinishLineY + 200; // 在终点线下面生成
+                this.y = fixedFinishLineY + 200; 
                 this.hasSpawned = true;
             }
 
-            // 冲线计数逻辑 (y坐标变小意味着向上移动)
             if (!this.isCounted && this.y < fixedFinishLineY + 30) {
                 this.isCounted = true;
-                // --- V81: 实时计算，不依赖累加 ---
-                // displayedCount 由 loop 中的 filter 计算，这里只做触发
-                // uiCount.innerText = displayedCount; 
             }
 
             if (isFinished) {
@@ -523,7 +506,8 @@
             const x = this.x + this.currentDrift;
             const y = this.y;
             
-            if(isFinished && this.name === '上海') {
+            // 最后一辆车(大连)显示标签
+            if(isFinished && this.name === '大连') {
                 ctx.save();
                 const text = "点击车辆看历史数据";
                 ctx.font = "bold 14px sans-serif";
@@ -534,24 +518,29 @@
                 const arrowHeight = 8;
                 
                 let centerX = x + this.width / 2;
+                // --- 智能防遮挡 ---
                 let boxLeft = centerX - boxWidth / 2;
                 if (boxLeft < 10) centerX = 10 + boxWidth / 2;
                 const rightBound = w / cameraScale - 10;
                 if (centerX + boxWidth / 2 > rightBound) centerX = rightBound - boxWidth / 2;
 
-                const bottomY = y - 10 + Math.sin(Date.now()/200)*5; 
-                const boxTopY = bottomY - boxHeight - arrowHeight;
+                // 放在车下方：y + this.height + arrowHeight + 弹动动画
+                // 增加15px硬性间距
+                const margin = 15; 
+                const bounce = Math.sin(Date.now() / 200) * 6;
+                const boxTopY = y + this.height + arrowHeight + margin + Math.abs(bounce); // 向下弹动
 
                 ctx.shadowColor="rgba(0,0,0,0.4)"; ctx.shadowBlur=10; ctx.shadowOffsetY=4;
                 ctx.fillStyle = '#FFEB3B';
                 ctx.beginPath();
                 ctx.roundRect(centerX - boxWidth/2, boxTopY, boxWidth, boxHeight, 8);
                 
+                // 箭头向上
                 const carCenterX = x + this.width / 2;
                 let arrowX = Math.max(centerX - boxWidth/2 + 10, Math.min(carCenterX, centerX + boxWidth/2 - 10));
-                ctx.moveTo(arrowX - 6, boxTopY + boxHeight);
-                ctx.lineTo(arrowX, boxTopY + boxHeight + arrowHeight);
-                ctx.lineTo(arrowX + 6, boxTopY + boxHeight);
+                ctx.moveTo(arrowX - 6, boxTopY);
+                ctx.lineTo(arrowX, boxTopY - arrowHeight); // 向上指
+                ctx.lineTo(arrowX + 6, boxTopY);
                 ctx.fill();
 
                 ctx.shadowColor="transparent";
@@ -585,39 +574,35 @@
         }
     }
 
+    function addCarsForYear(year) {
+        if (!timeline[year]) return;
+        timeline[year].forEach(name => {
+            // 双重保险：1. Set去重 2. 遍历检查
+            if (!addedCities.has(name) && !cars.some(c => c.name === name)) {
+                addedCities.add(name);
+                cars.push(new Car(name, year, cars.length));
+            }
+        });
+    }
+
     function gameLoop() {
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0); 
         ctx.clearRect(0, 0, w, h);
 
         const topMargin = h * 0.25; 
         const rowGap = carHeight * 1.5;
-        const groupGap = rowGap * 1.2;
         const bottomPadding = h * 0.5; 
 
-        let renderList = [];
-        if (isFinished) {
-            renderList = [...cars].sort((a,b) => a.foundYear - b.foundYear || a.originalIndex - b.originalIndex);
-            renderList.forEach((car, i) => {
-                car.update(i, topMargin);
-            });
-        } else {
-            const oldCars = cars.filter(c => c.foundYear < currentYear);
-            const newCars = cars.filter(c => c.foundYear === currentYear);
-            
-            oldCars.sort((a,b) => a.foundYear - b.foundYear || a.originalIndex - b.originalIndex);
-            oldCars.forEach((car, i) => car.update(i, topMargin));
-            
-            const oldRows = Math.ceil(Math.max(oldCars.length, 0) / LANE_COUNT);
-            let newCarsStartY = topMargin;
-            if (oldCars.length > 0) newCarsStartY = topMargin + oldRows * rowGap + groupGap;
-            
-            newCars.sort((a,b) => a.originalIndex - b.originalIndex);
-            newCars.forEach((car, i) => car.update(i, newCarsStartY));
-            
-            renderList = [...oldCars, ...newCars];
-        }
+        // 统一排序：按年份和索引
+        let renderList = [...cars];
+        renderList.sort((a,b) => a.foundYear - b.foundYear || a.originalIndex - b.originalIndex);
 
-        // --- 智能缩放 ---
+        // 更新位置
+        renderList.forEach((car, i) => {
+            car.update(i, topMargin);
+        });
+
+        // 智能缩放
         const totalRows = Math.ceil(renderList.length / LANE_COUNT);
         let totalH = topMargin + (totalRows) * rowGap + bottomPadding;
         let targetScale = totalH > h ? h / totalH : 1;
@@ -633,6 +618,7 @@
         ctx.fillStyle = "#2E7D32"; ctx.fillRect(0, 0, w, drawH);
         
         ctx.fillStyle = "#555"; ctx.fillRect(roadLeft, 0, roadW, drawH);
+        
         if(!isPaused && !isFinished && isGameStarted) roadScroll = (roadScroll + ROAD_SPEED) % 80;
         
         ctx.fillStyle = "#EEE"; const bW = roadW*0.02;
@@ -644,22 +630,22 @@
             for(let y=-80; y<drawH; y+=80) ctx.fillRect(lx-2, y+roadScroll, 4, 40);
         }
 
-        // 1. 绘制固定终点线 (世界坐标转换)
+        // 1. 绘制固定终点线
         const worldLineY = fixedFinishLineY / cameraScale;
         drawFinishLine(ctx, worldLineY, roadW);
 
         // 2. 绘制车
         renderList.forEach(car => car.draw(ctx));
 
-        // --- V81核心：实时更新计数器 (防止31个的问题) ---
-        // 统计所有 y < worldLineY + 20 的车辆
+        // 实时统计冲线数量
         if (isGameStarted) {
-             const crossedCount = renderList.filter(c => c.y < worldLineY + 30).length;
-             // 数字只能增加不能减少，防止抖动
+             const crossedCount = renderList.filter(c => c.isCounted).length;
+             // 数字只增不减
              const currentDisplay = parseInt(uiCount.innerText) || 0;
              uiCount.innerText = Math.max(crossedCount, currentDisplay);
         }
 
+        // 时间轴逻辑
         if(!isPaused && !isFinished && isGameStarted) {
             yearTimer += 16;
             if(yearTimer > YEAR_DURATION) {
@@ -668,20 +654,16 @@
                     currentYearIndex++;
                     currentYear = activeYears[currentYearIndex];
                     uiYear.innerText = currentYear;
-                    timeline[currentYear].forEach(name => {
-                        // V81: 防止重复添加
-                        if(!cars.some(c => c.name === name)){
-                             cars.push(new Car(name, currentYear, cars.length));
-                        }
-                    });
-                } else {
-                    // V81: 强制结束机制，3秒超时自动结算
-                    const totalCars = Object.values(timeline).flat().length;
-                    const currentCount = parseInt(uiCount.innerText);
                     
-                    if((currentCount >= totalCars && yearTimer > 1000) || yearTimer > 3000) {
+                    if (lastProcessedYear !== currentYear) {
+                        addCarsForYear(currentYear);
+                        lastProcessedYear = currentYear;
+                    }
+                } else {
+                    const totalCities = 29;
+                    if( (parseInt(uiCount.innerText) >= totalCities && yearTimer > 1000) || yearTimer > 4000 ) {
                         isFinished = true;
-                        uiCount.innerText = totalCars; // 强制修正为正确总数
+                        uiCount.innerText = totalCities; 
                         btnToggle.innerText = "重播";
                         btnToggle.classList.add('btn-replay');
                         btnSkip.style.display = 'none';
@@ -740,21 +722,18 @@
     btnSkip.onclick = () => {
         cars.forEach(c => hitboxLayer.removeChild(c.hitbox));
         cars = [];
-        separators = [];
+        addedCities.clear();
         
         activeYears.forEach(year => {
-            timeline[year].forEach(name => {
-                if(!cars.some(c => c.name === name)){
-                     cars.push(new Car(name, year, cars.length));
-                }
-            });
+            addCarsForYear(year);
         });
 
         currentYearIndex = activeYears.length - 1;
         currentYear = activeYears[currentYearIndex];
+        lastProcessedYear = currentYear;
         
         uiYear.innerText = currentYear;
-        // V81: 修正跳过时的计数
+        cars.forEach(c => c.isCounted = true);
         uiCount.innerText = cars.length;
         
         isFinished = true;
@@ -771,9 +750,10 @@
             isPaused = false;
             isGameStarted = true;
             uiLayer.classList.add('show');
-            timeline[currentYear].forEach(name => {
-                if(!cars.some(c => c.name === name)) cars.push(new Car(name, currentYear, cars.length));
-            });
+            
+            // 初始化第一年
+            addCarsForYear(currentYear);
+            lastProcessedYear = currentYear;
         }, 500); 
     };
 
@@ -781,14 +761,17 @@
         if(isFinished) {
             cars.forEach(c => hitboxLayer.removeChild(c.hitbox));
             cars = [];
+            addedCities.clear();
             currentYearIndex = 0; currentYear = activeYears[0];
+            lastProcessedYear = -1;
             yearTimer = 0; isFinished = false; isPaused = false;
+            displayedCount = 0; 
             uiYear.innerText = currentYear; uiCount.innerText = 0;
             btnToggle.innerText = "暂停"; btnToggle.classList.remove('btn-replay');
             btnSkip.style.display = 'block';
-            timeline[currentYear].forEach(name => {
-                if(!cars.some(c => c.name === name)) cars.push(new Car(name, currentYear, cars.length));
-            });
+            
+            addCarsForYear(currentYear);
+            lastProcessedYear = currentYear;
         } else {
             isPaused = !isPaused;
             btnToggle.innerText = isPaused ? "继续" : "暂停";
